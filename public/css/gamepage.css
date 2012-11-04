@@ -1,0 +1,55 @@
+body, html
+{
+margin:0px; padding: 0px; overflow:auto; font-family:Arial;
+font-size:20px;background-color: black; color: white;
+}
+
+#wrapper
+{
+margin: 0 auto; width: 1200px;
+}
+
+#gamediv
+{
+	float : left; width: 800px ;
+}
+
+#playerDisplay
+{
+ margin-bottom: 50px; border : solid white 1px;
+}
+
+#playerList
+{
+list-style-type: none; margin: 4px; padding: 0; font-size:16px;
+} 
+
+
+#cr-stage 
+{
+
+} 
+
+#chatdiv {
+float : left; width: 380px ; padding: 5px;
+}
+	
+#chatDisplay
+{
+height: 200px; overflow: auto; border : solid white 1px;
+} 
+
+#incomingChatMessages
+{
+list-style-type: none; margin: 4px; padding: 0; font-size:16px;
+}
+
+#outgoingChatMessage
+{
+width: 80%	 
+}
+	
+#playerDispay
+{
+ margin-top: 58px;  padding-right: 10px;  margin-right: 10px;  margin-left: 10px;  width: 220px; color: black;
+}

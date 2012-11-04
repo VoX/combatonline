@@ -1,22 +1,17 @@
 //Tank creation
 
 function makePlayerTank(player) {
-	return Crafty.e("2D, Canvas, car_player, Keyboard, Collision, WiredHitBox").origin("center").attr({
+	return Crafty.e("2D, Canvas, tank"+player.color+", Keyboard, Collision").origin("center").attr({
 		x: player.x,
 		y: player.y,
 		rotation: player.rotation,
 		_active: true,
 		//TODO: fix collision poly
 	}).collision(new Crafty.polygon([
-		[1, 19],
-		[2, 14],
-		[9, 14],
-		[13, 9],
-		[22, 10],
-		[24, 14],
-		[31, 15],
-		[30, 21],
-		[2, 20]
+		[0, 5],
+		[40, 5],
+		[40, 40],
+		[0, 40],
 
 		//TODO: disconnect the input from the framerate
 		])).bind("EnterFrame", function(e) {
@@ -66,7 +61,7 @@ function makePlayerTank(player) {
 }
 
 function makeTank(player, nametext) {
-	return Crafty.e("2D, Canvas, car_player, Tween").origin("center").attr({
+	return Crafty.e("2D, Canvas, tank"+player.color+", Tween").origin("center").attr({
 		id: player.name,
 		x: player.x,
 		y: player.y,

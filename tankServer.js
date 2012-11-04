@@ -1,7 +1,14 @@
+//TODO:replace with db query
+var colorgen = 1;
+
 function player(name) {
   this.name = name;
-  this.x = 50;
-  this.y = 50;
+  this.color = String(colorgen);
+  colorgen = (colorgen % 6) + 1;
+  this.x = spawnPoints[nextSpawn][0] * 40;
+  this.y = spawnPoints[nextSpawn][1] * 40;
+  nextSpawn = (nextSpawn+1) % spawnPoints.length;
+  console.log(this.x + " " +this.y)
   this.rotation = 0;
 }
 
@@ -13,11 +20,20 @@ playerList = {}, // list of all player, pid:playerobject
 dirtyList = {}, // list of dirty players pid:playerobject
 socketList = {}, // list of all sockets pid:playerobject
 idgen = 0, //temporary solution to id generation
-stepSize = 100; //time between simulation step in ms
+stepSize = 100, //time between simulation step in ms
+importMap = require('./map.js'), spawnPoints = [], nextSpawn = 0;
+
 
 
 exports.startServer = function(server) {
   console.log("Game server started");
+  //setup the spawn points
+  for(s in importMap.MAP) {
+    if(importMap.MAP[s] === "spawn") {
+      spawnPoints.push(s.split(","));
+      importMap.MAP[s] = "passable";
+    }
+  }
   wss = new WebSocketServer({
     server: server
   });
@@ -51,40 +67,42 @@ exports.startServer = function(server) {
 //When a new connection is made associate a id with the socket
 //This socket id will be assocated with a database id later.
 //NEVER SEND THE CLIENT THIS ID!, it is for internal processing only!
-function onConnect(ws){
-    idgen = idgen + 1;
-    ws.pid = idgen;
-    socketList[ws.pid] = ws;
-    //Make all players dirty so they will be sent to the new player, could refine this.
-    for(p in playerList){
-         dirtyList[playerList[p].name] = playerList[p];
-    }
+
+
+function onConnect(ws) {
+  idgen = idgen + 1;
+  ws.pid = idgen;
+  socketList[ws.pid] = ws;
 }
 
 //Called for every simulation step. Also sends updates.
 //TODO: break up simulation and updates so that we can simulate faster then we update clients
-function doStep(){
 
-    var update = {
-      type: "update",
-      players: dirtyList,
-      chats: chatlog,
-      specials: speciallog
-    };
 
-    //for every player create a update that includes all dirty players and the chatlog
-    for(x in socketList) {
-      socketList[x].send(JSON.stringify(update));
-    }
+function doStep() {
 
-    //print the chat messages to the console and clear the logs
-    if(chatlog.length !== 0) console.log(chatlog.join("\n"));
-    chatlog = [];
-    speciallog = [];
-    dirtyList = {};
+  var update = {
+    type: "update",
+    players: dirtyList,
+    chats: chatlog,
+    specials: speciallog
+  };
+
+  //for every player create a update that includes all dirty players and the chatlog
+  for(x in socketList) {
+    socketList[x].send(JSON.stringify(update));
+  }
+
+  //print the chat messages to the console and clear the logs
+  if(chatlog.length !== 0) console.log(chatlog.join("\n"));
+  chatlog = [];
+  speciallog = [];
+  dirtyList = {};
 }
 
 //do message handling.
+
+
 function handleMessage(msg) {
   if(msg.type === 'update') {
     //TODO: Check position to ensure no cheating, also only add players to dirtylist if their pos is actually dirty
@@ -93,9 +111,11 @@ function handleMessage(msg) {
     playerList[msg.pid].rotation = msg.player.rotation;
 
     dirtyList[playerList[msg.pid].name] = playerList[msg.pid];
+
     for(c in msg.chats) {
-      chatlog.push(playerList[msg.pid].name + ":" + msg.chats[c])
+      chatlog.push(playerList[msg.pid].name + ": " + msg.chats[c])
     }
+
 
   } else if(msg.type === 'initid') {
     //TODO: use the players token to match up the socket with the databaseid, 
@@ -106,12 +126,23 @@ function handleMessage(msg) {
     chatlog.push(joinedplayer.name + " connected");
     socketList[msg.pid].send(JSON.stringify({
       type: 'setplayer',
-      player: joinedplayer
+      player: joinedplayer,
+      map: importMap.MAP
     }));
+
+    //Make all players dirty so they will be sent to the new player, could refine this.
+    for(p in playerList) {
+      dirtyList[playerList[p].name] = playerList[p];
+    }
+    speciallog.push({
+      type: "allplayers"
+    });
   }
 }
 
 //disconnect a player
+
+
 function dcPlayer(pid) {
   chatlog.push(playerList[pid].name + " left");
   speciallog.push({
@@ -120,5 +151,13 @@ function dcPlayer(pid) {
   })
   socketList[pid].close();
   delete socketList[pid];
+  delete dirtyList[pid];
   delete playerList[pid]; //TODO: Make players stay for some time after they DC
+  //Make all players dirty so they will be sent to the new player, could refine this.
+  for(p in playerList) {
+    dirtyList[playerList[p].name] = playerList[p];
+  }
+  speciallog.push({
+    type: "allplayers"
+  });
 }

@@ -1,31 +1,48 @@
 <!DOCTYPE html>
 <head>
+    <script type="text/javascript" src="../libs/jquery.js">
+    </script>
+    <script type="text/javascript" src="../libs/crafty.js">
+    </script>
+    <script type="text/javascript" src="../game/sprites.js">
+    </script>
+    <script type="text/javascript" src="../game/components.js">
+    </script>
+    <script type="text/javascript" src="../game/tankgame.js">
+    </script>
+    <link href="../css/gamepage.css" rel="stylesheet" type="text/css">
+    <title>
+        Combat: Online
+    </title>
 
-	<script type="text/javascript" src="../libs/jquery.js"></script>
-	<script type="text/javascript" src="../libs/crafty.js"></script>
-	<script type="text/javascript" src="../game/sprites.js"></script>
-	<script type="text/javascript" src="../game/components.js"></script>
-	<script type="text/javascript" src="../game/tankgame.js"></script>
-	<title>Combat: Online</title>
-	<style>
-	body, html { margin:0px; padding: 0px; overflow:auto; font-family:Arial; font-size:20px;background-color: #292929 }
-	#cr-stage { border:5px solid black; margin:10px auto; color:white }
-	#chatdiv {margin:5px auto; color:white;width: 810px;text-align: left; }
-	#chatdisplay {font-size:18px;margin: 2px;border:5px solid black;height: 200px; overflow: auto}
-	#outgoingChatMessage {width: 500px }
-	</style>
 </head>
 <body>
-	<div id="gamediv">
-		<div id="cr-stage"></div>
-		<div id="chatdiv">		
-			<div id="chatdisplay">
-				
-			<ul id="incomingChatMessages"></ul>
-			</div>
-			<div id="name"><span id="user"><%= name %></span>	<input type="text" id="outgoingChatMessage"> </div>
-		</div>
-</div>
+<div id ="wrapper">
+    <div id="gamediv">
+        <div id="cr-stage">
+        </div>
+    </div>
+    <div id="chatdiv">
+    	<div id="playerdiv">
+       	Online Players
+        <div id="playerDisplay">
+            <ul id="playerList">
+            </ul>
+        </div>
+        
+    	Messages
+        <div id="chatDisplay">
+            <ul id="incomingChatMessages">
+            </ul>
+        </div>
+        <div id="name">
+            <span id="user"><%=name%></span>
+            <input type="text" id="outgoingChatMessage">
+        </div>
 
+    </div>
+    </div>
+</div>
 </body>
+
 </html>

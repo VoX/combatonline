@@ -1,5 +1,5 @@
 //connection and display vars
-var conn, chat, chatwindow;
+var conn, chat, chatwindow, onlineplayers;
 
 
 function player(name) {
@@ -21,13 +21,15 @@ var tileList = {},
 	HW = W / 2,
 	HH = H / 2,
 	framecount = 0,
-	playerTank, chatlog = [];
+	playerTank, chatlog = [],
+	MAP;
 
 
 function handleMessage(msg) {
 	if(msg.type === 'setplayer') {
 		playerList[msg.player.name] = msg.player;
 		playerTank = playerList[msg.player.name];
+		MAP = msg.map;
 		//start the game!
 		Crafty.scene("main");
 		//register the chat event
@@ -48,9 +50,14 @@ function handleMessage(msg) {
 
 		for(s in msg.specials) {
 			if(msg.specials[s].type === 'delplayer') {
-				delete playerList[msg.name];
-				entList[name].destroy();
-				delete entList[name];
+				delete playerList[msg.specials[s].name];
+				entList[msg.specials[s].name].destroy();
+				delete entList[msg.specials[s].name];
+			} else if(msg.specials[s].type === "allplayers") {
+				onlineplayers.empty();
+				for(p in msg.players) {
+					onlineplayers.append($('<li></li>').text(msg.players[p].name));
+				}
 			}
 		}
 
@@ -72,28 +79,34 @@ function handleMessage(msg) {
 }
 
 //initialize the connection and the display objects
-function connect() {
-		if(window["WebSocket"]) {
-			conn = new WebSocket("ws://voxic.dyndns.org:3000");
-			chat = $("#incomingChatMessages");
-			chatwindow = $("#chatdisplay");
-			conn.onerror = function(evt) {
-				console.log(evt);
-			};
-			conn.onopen = function(evt) {
-				var token = $('#user').text();
 
-				conn.send(JSON.stringify({
-					type: "initid",
-					token: token
-				}));
-			};
-			conn.onmessage = function(evt) {
-				message = JSON.parse(evt.data);
-				handleMessage(message);
-			};
-		}
-	};
+function connect() {
+	if(window["WebSocket"]) {
+		conn = new WebSocket("ws://voxic.dyndns.org:3000");
+		chat = $("#incomingChatMessages");
+		chatwindow = $("#chatDisplay");
+		onlineplayers = $("#playerList");
+		conn.onerror = function(evt) {
+			console.log(evt);
+		};
+		conn.onclose = function(evt) {
+			onlineplayers.empty();
+			onlineplayers.append($('<li></li>').text("CONNECTION FAILURE!")).css("color", "red");
+		};
+		conn.onopen = function(evt) {
+			var token = $('#user').text();
+
+			conn.send(JSON.stringify({
+				type: "initid",
+				token: token
+			}));
+		};
+		conn.onmessage = function(evt) {
+			message = JSON.parse(evt.data);
+			handleMessage(message);
+		};
+	}
+};
 
 window.onload = function() {
 	//start crafty
@@ -126,7 +139,7 @@ window.onload = function() {
 		initMap();
 
 		//make the players tank
-		entList[playerTank.name] =makePlayerTank(playerTank);
+		entList[playerTank.name] = makePlayerTank(playerTank);
 
 		//Global Events happen every frame
 		Crafty.bind("EnterFrame", function() {
@@ -138,12 +151,24 @@ window.onload = function() {
 			var vpx = (entList[playerTank.name]._x - HW),
 				vpy = (entList[playerTank.name]._y - HH);
 
-			//Max x in map * 32 - Crafty.viewport.width = 1164
-			if(vpx > 0 && vpx < 1196) {
+			//Max x in map * 40 - Crafty.viewport.width
+			if(vpx <= 0) {
+				Crafty.viewport.x = 0;
+			}
+			else if(vpx >= 1200){
+				Crafty.viewport.x = -1200;
+			}
+			else{
 				Crafty.viewport.x = -vpx;
 			}
 
-			if(vpy > 0 && vpy < 368) {
+			if(vpy <= 0) {
+				Crafty.viewport.y = 0;
+			}
+			else if(vpy >= 840){
+				Crafty.viewport.y = -840;
+			}
+			else{
 				Crafty.viewport.y = -vpy;
 			}
 
@@ -163,15 +188,20 @@ window.onload = function() {
 };
 
 //TODO:Rewrite this, maybe move it to the server?
+
 function initMap() {
 	for(var obj in MAP) {
 		var pos = obj.split(",");
-		tileList[obj] = Crafty.e("2D, Canvas, " + MAP[obj]).attr({
-			x: pos[0] * 32,
-			y: pos[1] * 32
-		});
-
-		if(MAP[obj].substr(0, 5) === "house") {
+		if(MAP[obj] === "passable") {
+			tileList[obj] = Crafty.e("2D, Canvas, passable").attr({
+				x: pos[0] * 40,
+				y: pos[1] * 40
+			});
+		} else {
+			tileList[obj] = Crafty.e("2D, Canvas, impassable").attr({
+				x: pos[0] * 40,
+				y: pos[1] * 40
+			});
 			tileList[obj].addComponent("Solid, Collision").collision();
 		}
 	}
