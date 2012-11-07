@@ -1,7 +1,7 @@
 //Tank creation
 
 function makePlayerTank(player) {
-	return Crafty.e("2D, Canvas, tank"+player.color+", Keyboard, Collision").origin("center").attr({
+	return Crafty.e("2D, Canvas, tank" + player.color + ", Keyboard, Collision").origin("center").attr({
 		x: player.x,
 		y: player.y,
 		rotation: player.rotation,
@@ -38,10 +38,17 @@ function makePlayerTank(player) {
 			item;
 
 		if(collision) {
-			item = collision[0];
+			var nx =0, ny=0;
+			for(x in collision) {
+				item = collision[x];
 
-			this.x += Math.ceil(item.normal.x * -item.overlap);
-			this.y += Math.ceil(item.normal.y * -item.overlap);
+				var dx = Math.ceil(item.normal.x * -item.overlap);
+				if(Math.abs(dx) > Math.abs(nx)){nx = dx;}
+				var dy = Math.ceil(item.normal.y * -item.overlap);
+				if(Math.abs(dy) > Math.abs(ny)){ny=dy;}
+			}
+			this.x += nx;
+			this.y += ny;
 		}
 
 		if(playerTank.x !== this.x) {
@@ -61,7 +68,7 @@ function makePlayerTank(player) {
 }
 
 function makeTank(player, nametext) {
-	return Crafty.e("2D, Canvas, tank"+player.color+", Tween").origin("center").attr({
+	return Crafty.e("2D, Canvas, tank" + player.color + ", Tween").origin("center").attr({
 		id: player.name,
 		x: player.x,
 		y: player.y,
@@ -89,12 +96,10 @@ function makeTank(player, nametext) {
 function makeTankText(player) {
 	return Crafty.e("2D, DOM, Text").attr({
 		x: player.x,
-		y: player.y,
-		z: 100,
+		y: player.y - 20,
+		z: 1,
 		id: player.name,
 		_active: true
-	}).text(player.name).textFont({
-		size: '200px',
-		weight: 'bold'
-	});
+	}).text(player.name).css('text-align', 'center').css('font-size', 'medium');
+
 }

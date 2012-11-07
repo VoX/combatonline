@@ -1,12 +1,18 @@
 {
-  "name": "application-name",
-  "version": "0.0.1",
+  "name": "tanksOnline",
+  "version": "0.1.0",
   "private": true,
   "scripts": {
     "start": "node app"
   },
   "dependencies": {
     "express": "3.0.0",
-    "ejs": "*"
+    "ejs": "*",
+     "mysql": ">= 2.0.0-alpha2"
+    , "commander": ">= 0.6.1"
+    , "async": ">= 0.1.22"
+    , "connect-flash": ">= 0.1.0"
+    , "ws" : ">= 0.4.22"
+  
   }
 }

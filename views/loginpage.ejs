@@ -1,0 +1,19 @@
+<%= include header %>
+
+
+<h1>Login - Tanks Online</h1>
+
+<form method="POST" action="/login">
+  username: <input type="text" name="name" /> <br>
+  password: <input type="text" name="hash" /> <br>
+
+  <input type="submit" name="submit" value="Login" />
+</form>
+
+<div id="msg">
+  <%= msg %>
+</div>
+<br>
+<a href="http://voxic.dyndns.org:3000/register">Or register?</a>
+
+<%= include footer %>

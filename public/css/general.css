@@ -1,0 +1,16 @@
+body {
+  padding: 50px;
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+
+a {
+  color: #00B7FF;
+}
+
+#msg {
+  color: red;
+}
+
+
+
+/* TODO: Add rule to make a 'msg' div have red font color. */

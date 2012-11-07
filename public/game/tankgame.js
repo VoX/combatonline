@@ -1,5 +1,5 @@
 //connection and display vars
-var conn, chat, chatwindow, onlineplayers;
+var conn, chat, chatwindow, onlineplayers, chatname;
 
 
 function player(name) {
@@ -29,6 +29,7 @@ function handleMessage(msg) {
 	if(msg.type === 'setplayer') {
 		playerList[msg.player.name] = msg.player;
 		playerTank = playerList[msg.player.name];
+		chatname.text(msg.player.name);
 		MAP = msg.map;
 		//start the game!
 		Crafty.scene("main");
@@ -41,8 +42,7 @@ function handleMessage(msg) {
 			}
 		});
 
-	} else if(msg.type === 'update') {
-
+	} else if(msg.type === 'update' && playerTank !== undefined) {
 		for(c in msg.chats) {
 			chat.append($('<li></li>').text(msg.chats[c]));
 			chatwindow.scrollTop(chatwindow[0].scrollHeight);
@@ -62,7 +62,9 @@ function handleMessage(msg) {
 		}
 
 		for(x in msg.players) {
+			
 			var p = msg.players[x];
+			p.name = x;
 			//if this is a new player we havent seen before
 			if(playerList[x] === undefined) {
 				playerList[x] = p;
@@ -71,6 +73,7 @@ function handleMessage(msg) {
 				entList[x] = makeTank(p, nametext);
 
 			} else {
+
 				playerList[x] = p;
 				playerList[x].dirty = true;
 			}
@@ -82,10 +85,11 @@ function handleMessage(msg) {
 
 function connect() {
 	if(window["WebSocket"]) {
-		conn = new WebSocket("ws://voxic.dyndns.org:3000");
+		conn = new WebSocket("ws://localhost:3000");
 		chat = $("#incomingChatMessages");
 		chatwindow = $("#chatDisplay");
 		onlineplayers = $("#playerList");
+		chatname = $('#user');
 		conn.onerror = function(evt) {
 			console.log(evt);
 		};
@@ -94,7 +98,7 @@ function connect() {
 			onlineplayers.append($('<li></li>').text("CONNECTION FAILURE!")).css("color", "red");
 		};
 		conn.onopen = function(evt) {
-			var token = $('#user').text();
+			var token = $('#token').val();
 
 			conn.send(JSON.stringify({
 				type: "initid",
@@ -147,31 +151,32 @@ window.onload = function() {
 
 			framecount = framecount + 1;
 
+			
 			//position of the viewport
 			var vpx = (entList[playerTank.name]._x - HW),
 				vpy = (entList[playerTank.name]._y - HH);
 
-			//Max x in map * 40 - Crafty.viewport.width
-			if(vpx <= 0) {
+			//TODO:Automate min/max view size calculation
+			if(vpx <= -20) {
 				Crafty.viewport.x = 0;
 			}
-			else if(vpx >= 1200){
+			else if(vpx+20 >= 1200){
 				Crafty.viewport.x = -1200;
 			}
 			else{
-				Crafty.viewport.x = -vpx;
+				Crafty.viewport.x = -(vpx + 20);
 			}
 
-			if(vpy <= 0) {
+			if(vpy <= -20) {
 				Crafty.viewport.y = 0;
 			}
-			else if(vpy >= 840){
+			else if(vpy+20 >= 840){
 				Crafty.viewport.y = -840;
 			}
 			else{
-				Crafty.viewport.y = -vpy;
+				Crafty.viewport.y = -(vpy + 20);
 			}
-
+	
 
 			//TODO: decouple the update rate from the framerate
 			if(framecount % 10 === 0 || playerTank.dirty === true) {
@@ -197,6 +202,7 @@ function initMap() {
 				x: pos[0] * 40,
 				y: pos[1] * 40
 			});
+
 		} else {
 			tileList[obj] = Crafty.e("2D, Canvas, impassable").attr({
 				x: pos[0] * 40,

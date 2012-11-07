@@ -17,31 +17,38 @@
 
 </head>
 <body>
+<input type="hidden" name="token" id ="token" value="<%= token %>"/>
 <div id ="wrapper">
     <div id="gamediv">
         <div id="cr-stage">
         </div>
     </div>
     <div id="chatdiv">
-    	<div id="playerdiv">
-       	Online Players
-        <div id="playerDisplay">
-            <ul id="playerList">
-            </ul>
+
+      <div id="playerdiv">
+
+            Online Players
+         <div id="playerDisplay">
+             <ul id="playerList">
+             </ul>
         </div>
-        
     	Messages
         <div id="chatDisplay">
             <ul id="incomingChatMessages">
             </ul>
         </div>
         <div id="name">
-            <span id="user"><%=name%></span>
+            <span id="user"></span>
             <input type="text" id="outgoingChatMessage">
+
         </div>
 
     </div>
+
     </div>
+    <div id ="logoutdiv">
+     <a href="http://voxic.dyndns.org:3000/logout" id = "logout">logout</a>
+ </div>
 </div>
 </body>
 

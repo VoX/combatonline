@@ -2497,5 +2497,5 @@ exports.MAP = {'0,0': 'impassable',
 '49,46': 'impassable',
 '49,47': 'impassable',
 '49,48': 'impassable',
-'49,49': 'impassable'
+'49,49': 'impassable',
 };
