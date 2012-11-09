@@ -119,6 +119,46 @@ exports.playgame = function(req, res) {
 	} else {
 		res.redirect('/login');
 	}
+};
 
-
+/**
+ * Retrieves the statistics from the database and displays them on 
+ * the statistics page.
+ */
+exports.getStatistics = function(req, res){
+	if(req.session.uid !== undefined){										// If the user is logged in
+		// Create the stats table with the proper headers
+		var statsTable = '<table><tr><th>Username</th><th>Games Played</th><th>Kills</th><th>Deaths</th><th>K/D Ratio</th></tr>';
+		conn.query("select * from statistics", function(err, stats) {		// Query the database for all statistics
+			if(err) {														// If there's an error
+				console.log(err);											// Log the error to the console
+				req.flash('msg', err);										// Flash the error message to the user
+			} else {														// If the query was successful
+				for(var i = 0; i < stats.length; i++){						// Loop through the statistic entries
+					var stat = stats[i];									// Grab the current statistic object
+					var user = '';
+					conn.query('select name from users where uid = ?', [stat.uid], function(err, result){	// Query the database for the statistic's user
+						if(err){											// If there's an error
+							console.log(err);								// Log the error to the console
+							req.flash('msg', err);							// Flash the error message to the user
+						} else {											// If the query was successful
+							user = results[0].name;							// Grab the user's name
+						}
+					});
+					statsTable += '<tr>'													// Create a new table row
+					statsTable += '<td id="username">' + user + '</td>';					// Add the user's name to the row
+					statsTable += '<td id="gamesPlayed">' + stat.gamesPlayed + '</td>';		// Add the # of games played to the row
+					statsTable += '<td id="kills">' + stat.kills + '</td>';					// Add the # of kills to the row
+					statsTable += '<td id="deaths">' + stat.deaths + '</td>';				// Add the # of deaths to the row
+					statsTable += '<td id="ratio">' + (stat.kills/stat.deaths) + '</td>';	// Add the K/D ratio to the row
+				}
+			}
+		});
+		statsTable += '</table>';							// Complete the statistics table
+		res.render('statisticspage', {						// Render it to the statistics page
+			full_stats_table : statsTable
+		});
+	} else {												// If the user isn't logged in
+		res.redirect('/login');								// Redirect them to the login page
+	}
 };
