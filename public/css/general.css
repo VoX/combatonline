@@ -11,6 +11,16 @@ a {
   color: red;
 }
 
+td, th {
+  text-align: center;
+}
 
+table, th, td{
+  border: 1px solid black;
+}
+
+table {
+  border-collapse:collapse;
+}
 
 /* TODO: Add rule to make a 'msg' div have red font color. */
