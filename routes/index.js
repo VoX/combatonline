@@ -46,9 +46,7 @@ exports.try_login = function(req, res) {
 				res.redirect('/login');
 			} else {
 				if(result.length === 1) {
-					console.log(result[0].uid + "logged in");
 					req.session.uid = result[0].uid;
-					console.log('user '+req.session.uid+' logged in');
 					res.redirect('/');
 				} else {
 					console.log(result);
