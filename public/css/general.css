@@ -21,6 +21,18 @@ table, th, td{
 
 table {
   border-collapse:collapse;
+  margin:0 auto;
 }
 
+h1 {
+  text-align: center;
+}
+
+div.stats {
+	text-align: center;
+}
+
+div#links{
+	text-align: center;
+}
 /* TODO: Add rule to make a 'msg' div have red font color. */

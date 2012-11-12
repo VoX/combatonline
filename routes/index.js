@@ -48,7 +48,8 @@ exports.try_login = function(req, res) {
 				if(result.length === 1) {
 					console.log(result[0].uid + "logged in");
 					req.session.uid = result[0].uid;
-					res.redirect('/playgame');
+					console.log('user '+req.session.uid+' logged in');
+					res.redirect('/');
 				} else {
 					console.log(result);
 					req.flash('msg', "Login failed, please try again.");
@@ -102,16 +103,22 @@ exports.try_register = function(req, res) {
 
 
 exports.index = function(req, res) {
-	if(req.session.uid !== undefined) {
+	var msg = req.flash('msg')[0] || '';
+	if(req.session.uid === undefined) {
 		res.redirect('/login');
-	} else res.redirect('/playgame');
+	} else{
+		res.render('landingpage', {
+			title: 'Landing Page',
+			msg: msg
+		});
+	}
 };
 
 exports.login = function(req, res) {
 	var msg = req.flash('msg')[0] || '';
 
 	res.render('loginpage', {
-		title: "login",
+		title: "Login",
 		msg: msg
 	});
 };
@@ -125,7 +132,7 @@ exports.logout = function(req, res) {
 exports.register = function(req, res) {
 	var msg = req.flash('msg')[0] || '';
 	res.render('registerpage', {
-		title: "login",
+		title: "Register",
 		msg: msg
 	});
 };
