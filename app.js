@@ -40,9 +40,7 @@ app.get('/register', routes.register);
 app.get('/logout', routes.logout);
 app.post('/register', routes.try_register);
 app.get('/playgame', routes.playgame);
-
-// Remove comment to enable the statistics page
-//app.get('/statistics', routes.getStatistics);
+app.get('/statistics', routes.getStatistics);
 
 var webServer = http.createServer(app);
 

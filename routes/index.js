@@ -6,11 +6,11 @@ var conn;
 
 
 var connInfo = {
-	host: 'instance28219.db.xeround.com',
-	port: 18453,
-	user: 'Ian',
-	password: 'Reddit11',
-	database: 'users'
+	host: 'instance31444.db.xeround.com',
+	port: 20310,
+	user: 'administrator',
+	password: 'tankgame',
+	database: 'tanksonline'
 };
 
 exports.dbconnect = function() {
@@ -29,14 +29,17 @@ exports.dbconnect = function() {
 };
 
 exports.try_login = function(req, res) {
-	var name = req.body.name;
-	var hash = req.body.hash;
+	var username = req.body.username;
+	var password = req.body.password;
 
-	if(!name || !hash) {
+	if(!username || !password) {
 		req.flash('msg', 'Missing login information!');
 		res.redirect('/login');
 	} else {
-		conn.query("select uid from users where name = ? and hash = ?", [name, hash], function(err, result) {
+		var crypto = require('crypto');
+		var md5sum = crypto.createHash('md5');
+		md5sum.update(password);
+		conn.query("select uid from users where username = ? and password = ?", [username, md5sum.digest('hex')], function(err, result) {
 			if(err) {
 				console.log(err);
 				req.flash('msg', err);
@@ -59,19 +62,36 @@ exports.try_login = function(req, res) {
 
 exports.try_register = function(req, res) {
 	var name = req.body.name;
-	var hash = req.body.hash;
+	var password = req.body.password;
 	var email = req.body.email;
-
-	if(!name || !hash || !email) {
+	if(!name || !password || !email) {
 		req.flash('msg', 'Missing information for login!');
 		res.redirect('/login');
 	} else {
-		conn.query("insert into users values (NULL, ?, ?, ?, 0, NULL)", [name, email, hash], function(err, result) {
+		var crypto = require('crypto');
+		var md5sum = crypto.createHash('md5');
+		md5sum.update(password);
+		conn.query("insert into users values (NULL, ?, ?, ?)", [name, md5sum.digest('hex'), email], function(err, result) {
 			if(err) {
 				console.log(err);
 				req.flash('msg', err);
 				res.redirect('/register');
 			} else {
+				var uid = result.insertId;
+				conn.query('insert into statistics values (NULL, ?, 0, 0, 0, 0, 0)', [uid], function(err1, result) {
+					if(err1){
+						conn.query('delete from users where uid = ?', [uid], function(err2, result1){
+							if(err2){
+								console.log(err2);
+								req.flash('msg', err2);
+								res.redirect('/register');
+							}
+						});
+						console.log(err1);
+						req.flash('msg', err);
+						res.redirect('/register');
+					}
+				});
 				req.flash('msg', "Registration sucessful, please log in.");
 				res.redirect('/login');
 			}
@@ -128,34 +148,49 @@ exports.playgame = function(req, res) {
 exports.getStatistics = function(req, res){
 	if(req.session.uid !== undefined){										// If the user is logged in
 		// Create the stats table with the proper headers
-		var statsTable = '<table><tr><th>Username</th><th>Games Played</th><th>Kills</th><th>Deaths</th><th>K/D Ratio</th></tr>';
-		conn.query("select * from statistics", function(err, stats) {		// Query the database for all statistics
+		var userStatsTable = '<table id="user_stats_table"><tr><th>Username</th><th>Games Played</th><th>Kills</th><th>Deaths</th><th>K/D Ratio</th></tr>';
+		conn.query('select S.gamesPlayed, S.wins, S.losses, S.kills, S.deaths, U.username from statistics S, users U where S.uid = ?', [req.session.uid], function(err, result){
+			if(err){
+				console.log(err);
+				req.flash('msg', err);
+			}
+			else{
+				var userStat = result[0];
+				userStatsTable += '<tr>'													// Create a new table row
+				userStatsTable += '<td id="username">' + userStat.username + '</td>';			// Add the user's name to the row
+				userStatsTable += '<td id="gamesPlayed">' + userStat.gamesPlayed + '</td>';		// Add the # of games played to the row
+				userStatsTable += '<td id="wins">' + userStat.wins + '</td>';					// Add the # of wins to the row
+				userStatsTable += '<td id="losses">' + userStat.losses + '</td>'				// Add the # of losses to the row
+				userStatsTable += '<td id="kills">' + userStat.kills + '</td>';					// Add the # of kills to the row
+				userStatsTable += '<td id="deaths">' + userStat.deaths + '</td>';				// Add the # of deaths to the row
+				userStatsTable += '<td id="ratio">' + (userStat.kills/userStat.deaths) + '</td></tr>';	// Add the K/D ratio to the row
+				
+			}
+		});
+		userStatsTable += '</table>';
+		var statsTable = '<table id="full_stats_table"><tr><th>Username</th><th>Games Played</th><th>Kills</th><th>Deaths</th><th>K/D Ratio</th></tr>';
+		conn.query('select S.gamesPlayed, S.wins, S.losses, S.kills, S.deaths, U.username from statistics S, users U where S.uid = U.uid', function(err, stats) {		// Query the database for all statistics
 			if(err) {														// If there's an error
 				console.log(err);											// Log the error to the console
 				req.flash('msg', err);										// Flash the error message to the user
 			} else {														// If the query was successful
 				for(var i = 0; i < stats.length; i++){						// Loop through the statistic entries
 					var stat = stats[i];									// Grab the current statistic object
-					var user = '';
-					conn.query('select name from users where uid = ?', [stat.uid], function(err, result){	// Query the database for the statistic's user
-						if(err){											// If there's an error
-							console.log(err);								// Log the error to the console
-							req.flash('msg', err);							// Flash the error message to the user
-						} else {											// If the query was successful
-							user = results[0].name;							// Grab the user's name
-						}
-					});
 					statsTable += '<tr>'													// Create a new table row
-					statsTable += '<td id="username">' + user + '</td>';					// Add the user's name to the row
+					statsTable += '<td id="username">' + stat.username + '</td>';					// Add the user's name to the row
 					statsTable += '<td id="gamesPlayed">' + stat.gamesPlayed + '</td>';		// Add the # of games played to the row
+					statsTable += '<td id="wins">' + stat.wins + '</td>';					// Add the # of wins to the row
+					statsTable += '<td id="losses">' + stat.losses + '</td>'				// Add the # of losses to the row
 					statsTable += '<td id="kills">' + stat.kills + '</td>';					// Add the # of kills to the row
 					statsTable += '<td id="deaths">' + stat.deaths + '</td>';				// Add the # of deaths to the row
 					statsTable += '<td id="ratio">' + (stat.kills/stat.deaths) + '</td>';	// Add the K/D ratio to the row
 				}
 			}
 		});
-		statsTable += '</table>';							// Complete the statistics table
-		res.render('statisticspage', {						// Render it to the statistics page
+		statsTable += '</table>';							// Complete the statistics tables
+		res.render('statisticspage', {						// Render them to the statistics page
+			title : 'statistics',
+			user_stats_table : userStatsTable,
 			full_stats_table : statsTable
 		});
 	} else {												// If the user isn't logged in

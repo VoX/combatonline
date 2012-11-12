@@ -137,7 +137,7 @@ function addPlayer(pid, token) {
   async.waterfall([
 
   function(cb) {
-    dbquery.conn.query("select name from users where uid = ?", [token], function(err, result) {
+    dbquery.conn.query("select username from users where uid = ?", [token], function(err, result) {
       if(err) {
         console.log(err);
         cb(null, err, undefined);
@@ -147,7 +147,7 @@ function addPlayer(pid, token) {
     });
   }, function(err, result, cb) {
     if(!err && result) {
-      joinedplayer = new player(result[0].name);
+      joinedplayer = new player(result[0].username);
       playerList[pid] = joinedplayer;
       chatlog.push(joinedplayer.name + " connected");
       socketList[pid].send(JSON.stringify({
