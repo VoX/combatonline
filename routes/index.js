@@ -6,11 +6,11 @@ var conn;
 
 
 var connInfo = {
-	host: 'instance28219.db.xeround.com',
-	port: 18453,
-	user: 'Ian',
-	password: 'Reddit11',
-	database: 'users'
+	host: 'instance31444.db.xeround.com',
+	port: 20310,
+	user: 'administrator',
+	password: 'tankgame',
+	database: 'tanksonline'
 };
 
 exports.dbconnect = function() {
