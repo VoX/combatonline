@@ -34,6 +34,7 @@ function handleMessage(msg) {
 		//start the game!
 		Crafty.scene("main");
 		//register the chat event
+		//TODO Fix WASD
 		$('#outgoingChatMessage').keypress(function(event) {
 			if(event.which == 13) {
 				event.preventDefault();
@@ -191,8 +192,6 @@ window.onload = function() {
 		});
 	});
 };
-
-//TODO:Rewrite this, maybe move it to the server?
 
 function initMap() {
 	for(var obj in MAP) {
