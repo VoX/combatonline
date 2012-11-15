@@ -46,6 +46,7 @@ exports.try_login = function(req, res) {
 			} else {
 				if(result.length === 1) {
 					req.session.uid = result[0].uid;
+					req.flash('msg', 'Successfully logged in as ' + username;
 					res.redirect('/');
 				} else {
 					console.log(result);
