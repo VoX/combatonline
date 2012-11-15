@@ -36,7 +36,7 @@ exports.try_login = function(req, res) {
 		req.flash('msg', 'Missing login information!');
 		res.redirect('/login');
 	} else {
-		conn.query("select uid from users where name = ? and hash = ?", [name, hash], function(err, result) {
+		conn.query("select uid from users where username = ? and password = ?", [username, password], function(err, result) {
 			if(err) {
 				console.log(err);
 				req.flash('msg', err);
@@ -58,17 +58,17 @@ exports.try_login = function(req, res) {
 
 
 exports.try_register = function(req, res) {
-	var name = req.body.name;
-	var hash = req.body.hash;
+	var username = req.body.name;
+	var password = req.body.hash;
 	var email = req.body.email;
 
-	if(!name || !hash || !email) {
-		req.flash('msg', 'Missing information for login!');
-		res.redirect('/login');
+	if(!username || !password || !email) {
+		req.flash('msg', 'Missing information for registration!');
+		res.redirect('/register');
 	} else {
-		conn.query("insert into users values (NULL, ?, ?, ?, 0, NULL)", [name, email, hash], function(err, result) {
+		conn.query("insert into users values (NULL, ?, ?, ?)", [username, email, password], function(err, result) {
 			if(err) {
-				console.log(err);
+				console.log("error: " + err);
 				req.flash('msg', err);
 				res.redirect('/register');
 			} else {
