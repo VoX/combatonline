@@ -31,7 +31,6 @@ exports.dbconnect = function() {
 exports.try_login = function(req, res) {
 	var username = req.body.username;
 	var password = req.body.password;
-
 	if(!username || !password) {
 		req.flash('msg', 'Missing login information!');
 		res.redirect('/login');
@@ -64,7 +63,7 @@ exports.try_register = function(req, res) {
 	var password = req.body.password;
 	var email = req.body.email;
 	if(!name || !password || !email) {
-		req.flash('msg', 'Missing information for login!');
+		req.flash('msg', 'Missing information for registration!');
 		res.redirect('/login');
 	} else {
 		var crypto = require('crypto');
@@ -72,7 +71,7 @@ exports.try_register = function(req, res) {
 		md5sum.update(password);
 		conn.query("insert into users values (NULL, ?, ?, ?)", [name, md5sum.digest('hex'), email], function(err, result) {
 			if(err) {
-				console.log(err);
+				console.log("error: " + err);
 				req.flash('msg', err);
 				res.redirect('/register');
 			} else {
@@ -88,6 +87,7 @@ exports.try_register = function(req, res) {
 						});
 						console.log(err1);
 						req.flash('msg', err);
+						req.flash('color', 'green');
 						res.redirect('/register');
 					}
 				});
@@ -114,9 +114,11 @@ exports.index = function(req, res) {
 
 exports.login = function(req, res) {
 	var msg = req.flash('msg')[0] || '';
+	var color = req.flash('color')[0] || 'red';
 
 	res.render('loginpage', {
 		title: "Login",
+		msgcolor: color,
 		msg: msg
 	});
 };

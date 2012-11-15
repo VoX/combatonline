@@ -6,11 +6,10 @@
 <form method="POST" action="/login">
   username: <input type="text" name="username" size = "40" maxlength="40" /> <br>
   password: <input type="password" name="password" size="40" maxlength="40" /> <br>
-
   <input type="submit" name="submit" value="Login" />
 </form>
 
-<div id="msg">
+<div id="msg" style="color:<%=msgcolor %>">
   <%= msg %>
 </div>
 <br>
