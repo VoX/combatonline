@@ -33,6 +33,10 @@ function makePlayerTank(player) {
 		} else if(this.isDown(Crafty.keys.D) || this.isDown(Crafty.keys.RIGHT_ARROW)) {
 			this.rotation = this._rotation + 3.5;
 		}
+		
+		if(this.isDown(Crafty.keys.T)){
+			$("#outgoingChatMessage").select();
+		}
 
 		var collision = this.hit("Solid"),
 			item;

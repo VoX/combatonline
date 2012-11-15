@@ -40,6 +40,7 @@ function handleMessage(msg) {
 				event.preventDefault();
 				chatlog.push($('#outgoingChatMessage').val());
 				$('#outgoingChatMessage').val('');
+				$('#outgoingChatMessage').blur();
 			}
 		});
 
