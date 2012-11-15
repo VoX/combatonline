@@ -2,7 +2,7 @@
 var colorgen = 1;
 
 function player(name) {
-  this.name = name;
+  this.username = name;
   this.color = String(colorgen);
   colorgen = (colorgen % 6) + 1;
   this.x = spawnPoints[nextSpawn][0] * 40;
@@ -111,10 +111,10 @@ function handleMessage(msg) {
     playerList[msg.pid].y = msg.player.y;
     playerList[msg.pid].rotation = msg.player.rotation;
 
-    dirtyList[playerList[msg.pid].name] = playerList[msg.pid];
+    dirtyList[playerList[msg.pid].username] = playerList[msg.pid];
 
     for(c in msg.chats) {
-      chatlog.push(playerList[msg.pid].name + ": " + msg.chats[c])
+      chatlog.push(playerList[msg.pid].username + ": " + msg.chats[c])
     }
 
 
@@ -125,7 +125,7 @@ function handleMessage(msg) {
 
 function makeAllDirty() {
   for(p in playerList) {
-    dirtyList[playerList[p].name] = playerList[p];
+    dirtyList[playerList[p].username] = playerList[p];
   }
   speciallog.push({
     type: "allplayers"
@@ -137,7 +137,7 @@ function addPlayer(pid, token) {
   async.waterfall([
 
   function(cb) {
-    dbquery.conn.query("select name from users where uid = ?", [token], function(err, result) {
+    dbquery.conn.query("select username from users where uid = ?", [token], function(err, result) {
       if(err) {
         console.log(err);
         cb(null, err, undefined);
@@ -147,9 +147,9 @@ function addPlayer(pid, token) {
     });
   }, function(err, result, cb) {
     if(!err && result) {
-      joinedplayer = new player(result[0].name);
+      joinedplayer = new player(result[0].username);
       playerList[pid] = joinedplayer;
-      chatlog.push(joinedplayer.name + " connected");
+      chatlog.push(joinedplayer.username + " connected");
       socketList[pid].send(JSON.stringify({
         type: 'setplayer',
         player: joinedplayer,
@@ -166,10 +166,10 @@ function addPlayer(pid, token) {
 //disconnect a player
 
 function dcPlayer(pid) {
-  chatlog.push(playerList[pid].name + " left");
+  chatlog.push(playerList[pid].username + " left");
   speciallog.push({
     type: 'delplayer',
-    name: playerList[pid].name
+    name: playerList[pid].username
   })
   socketList[pid].close();
   delete socketList[pid];
@@ -177,7 +177,7 @@ function dcPlayer(pid) {
   delete playerList[pid]; //TODO: Make players stay for some time after they DC
   //Make all players dirty so they will be sent to the new player, could refine this.
   for(p in playerList) {
-    dirtyList[playerList[p].name] = playerList[p];
+    dirtyList[playerList[p].username] = playerList[p];
   }
   speciallog.push({
     type: "allplayers"
