@@ -72,6 +72,7 @@ exports.try_register = function(req, res) {
 				req.flash('msg', err);
 				res.redirect('/register');
 			} else {
+				req.flash('color', "green");
 				req.flash('msg', "Registration sucessful, please log in.");
 				res.redirect('/login');
 			}
@@ -89,10 +90,12 @@ exports.index = function(req, res) {
 
 exports.login = function(req, res) {
 	var msg = req.flash('msg')[0] || '';
+	var color = req.flash('color')[0] || 'red';
 
 	res.render('loginpage', {
 		title: "login",
-		msg: msg
+		msg: msg,
+		msgcolor: color
 	});
 };
 
