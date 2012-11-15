@@ -65,7 +65,7 @@ exports.try_register = function(req, res) {
 	var email = req.body.email;
 	if(!name || !password || !email) {
 		req.flash('msg', 'Missing information for registration!');
-		res.redirect('/login');
+		res.redirect('/register');
 	} else {
 		var crypto = require('crypto');
 		var md5sum = crypto.createHash('md5');
