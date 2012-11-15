@@ -62,10 +62,14 @@ exports.try_register = function(req, res) {
 	var name = req.body.name;
 	var password = req.body.password;
 	var email = req.body.email;
-	if(!name || !password || !email) {
+	var passwordCheck= req.body.passwordCheck;
+	if(!name || !password || !passwordCheck || !email) {
 		req.flash('msg', 'Missing information for registration!');
-		res.redirect('/login');
-	} else {
+		res.redirect('/register');
+	} else if(password != passwordCheck){
+			req.flash('msg', 'Password does not match');
+			res.redirect('/register');
+	}else{
 		var crypto = require('crypto');
 		var md5sum = crypto.createHash('md5');
 		md5sum.update(password);
