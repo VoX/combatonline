@@ -29,10 +29,10 @@ exports.dbconnect = function() {
 };
 
 exports.try_login = function(req, res) {
-	var name = req.body.name;
-	var hash = req.body.hash;
+	var username = req.body.name;
+	var password = req.body.hash;
 
-	if(!name || !hash) {
+	if(!username || !password) {
 		req.flash('msg', 'Missing login information!');
 		res.redirect('/login');
 	} else {
@@ -66,7 +66,7 @@ exports.try_register = function(req, res) {
 		req.flash('msg', 'Missing information for registration!');
 		res.redirect('/register');
 	} else {
-		conn.query("insert into users values (NULL, ?, ?, ?)", [username, email, password], function(err, result) {
+		conn.query("insert into users values (NULL, ?, ?, ?)", [username, password, email], function(err, result) {
 			if(err) {
 				console.log("error: " + err);
 				req.flash('msg', err);
