@@ -1,15 +1,50 @@
 <%= include header %>
 
-
 <h1>Register - Tanks Online</h1>
 
 <form method="POST" action="/register">
   username: <input type="text" name="name" size="40" maxlength="40" /> <br>
-  password: <input type="password" name="password" size="40" maxlength="40" /> <br>
-  retype password: <input type="password" name="passwordCheck" size="40" maxlength="40" /> <br>
+  password: <input id="pass" type="password" name="password" size="40" maxlength="40" /><div id="passCheck"></div><br>
+  retype password: <input id="passC" type="password" name="passwordCheck" size="40" maxlength="40" /><div id="passMatch"></div><br>
   email: <input type="text" name="email" size="40" maxlength="40" /> <br>
   <input type="submit" name="submit" value="Submit" />
 </form>
+
+<script>
+
+var password = $('#pass');
+
+password.keyup('input', function(){
+
+	if((password.val().length > 0)&&(password.val().length < 3)){
+		$('#passCheck').text("weak");
+		$('#passCheck').css('color', 'red');
+	}
+	if((password.val().length > 3)&&(password.val().length < 5)){
+		$('#passCheck').text("medium");
+		$('#passCheck').css('color', 'yellow');
+	}
+
+	if(password.val().length > 6){
+		$('#passCheck').text("strong");
+		$('#passCheck').css('color', 'green');
+	}
+});
+
+var pass = $('#passC');
+
+pass.keyup('input', function(){
+
+	if(pass.val() === password.val()){
+		$('#passMatch').text("match");
+		$('#passMatch').css('color', 'green');
+	}else{
+		$('#passMatch').text("no match");
+		$('#passMatch').css('color', 'red');
+	}
+});
+
+</script>
 
 <div id="msg">
   <%= msg %>

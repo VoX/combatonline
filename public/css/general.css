@@ -36,3 +36,15 @@ div#links{
 	text-align: center;
 }
 /* TODO: Add rule to make a 'msg' div have red font color. */
+
+div#passCheck{
+  margin-left: 20px;
+  display: inline;
+  font-weight: bold;
+}
+
+div#passMatch{
+  margin-left: 20px;
+  display: inline;
+  font-weight: bold;
+}
