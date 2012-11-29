@@ -8,6 +8,7 @@ function initSprites() {
 		tank6: [2, 1],
 		passable: [1, 2],
 		impassable: [0, 2],
+		powerup: [2,2],
 
 	};
 
