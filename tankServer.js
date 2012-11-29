@@ -21,8 +21,7 @@ dirtyList = {}, // list of dirty players pid:playerobject
 socketList = {}, // list of all sockets pid:playerobject
 idgen = 0, //temporary solution to id generation
 stepSize = 100, //time between simulation step in ms
-importMap = require('./map/map.js'), spawnPoints = [], nextSpawn = 0, dbquery = require("./routes"), async = require('async');
-
+importMap = require('./map/map.js'), spawnPoints = [], blocks = {}, nextSpawn = 0, dbquery = require("./routes"), async = require('async');
 
 
 
@@ -31,7 +30,9 @@ exports.startServer = function(server) {
   //setup the spawn points
   for(s in importMap.MAP) {
     if(importMap.MAP[s] === "impassable"){
-      var pos = s.split(",");
+      blocks[s] = "impassable";
+
+
     }
 
     if(importMap.MAP[s] === "spawn") {
