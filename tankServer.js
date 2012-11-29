@@ -12,6 +12,11 @@ function player(name) {
   this.rotation = 0;
 }
 
+function powerUp(){
+  this.x = spawnPoints[nextSpawn][0] * 40;
+  this.y = spawnPoints[nextSpawn][1] * 40;
+}
+
 //Server Vars
 var WebSocketServer = require('ws').Server,
   wss, speciallog = []; //Special messages to be sent
@@ -183,4 +188,14 @@ function dcPlayer(pid) {
   speciallog.push({
     type: "allplayers"
   });
+}
+
+//add another powerup to the map and send it to all clients
+
+function addPowerUp(){
+  for(pid in socketList){
+    socketList[pid].send(JSON.stringify({
+      type: 'newPowerUp',
+      power: new powerUp()
+  }));
 }

@@ -110,9 +110,9 @@ function makeTankText(player) {
 
 //powerup creation
 
-function makePowerUp(){
+function makePowerUp(power){
 	return Crafty.e("2D, Canvas, powerup, Collision").attr({
-		x: Math.random()*800,
-		y: Math.random()*600
+		x: power.x,
+		y: power.y
 	});
 }
