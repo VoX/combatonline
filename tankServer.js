@@ -198,4 +198,5 @@ function addPowerUp(){
       type: 'newPowerUp',
       power: new powerUp()
   }));
+  }
 }
