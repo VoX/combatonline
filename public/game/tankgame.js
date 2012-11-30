@@ -104,6 +104,8 @@ function handleMessage(msg) {
 				playerList[x].dirty = true;
 			}
 		}
+	} else if(msg.type === 'newPowerUp'){
+		makePowerUp(msg.power);
 	}
 }
 

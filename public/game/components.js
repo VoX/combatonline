@@ -115,3 +115,12 @@ function makeTankText(player) {
 	}).text(player.name).css('text-align', 'center').css('font-size', 'medium');
 
 }
+
+//powerup creation
+
+function makePowerUp(power){
+	return Crafty.e("2D, Canvas, powerup, Collision").attr({
+		x: power.x,
+		y: power.y
+	});
+}
