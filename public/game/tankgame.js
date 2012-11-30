@@ -51,7 +51,12 @@ function handleMessage(msg) {
 		}
 
 		for(s in msg.specials) {
-			if(msg.specials[s].type === 'delplayer') {
+			if(msg.specials[s].type === 'hit'){
+				delete projectileList[msg.specials[s].owner];
+				entProj[msg.specials[s].owner].destroy();
+				delete entProj[msg.specials[s].owner];
+			}			
+			else if(msg.specials[s].type === 'delplayer') {
 				delete playerList[msg.specials[s].name];
 				entList[msg.specials[s].name].destroy();
 				delete entList[msg.specials[s].name];
@@ -63,6 +68,25 @@ function handleMessage(msg) {
 			}
 		}
 
+	/*	for(x in msg.projectiles) {
+			
+			var p = msg.projectiles[p];
+			p.owner = x;
+			//if this is a new player we havent seen before
+			if(playerList[x] === undefined) {
+				playerList[x] = p;
+
+				var nametext = makeTankText(p);
+				entList[x] = makeTank(p, nametext);
+
+			} else {
+
+				playerList[x] = p;
+				playerList[x].dirty = true;
+			}
+		}
+
+*/
 		for(x in msg.players) {
 			
 			var p = msg.players[x];
