@@ -43,6 +43,7 @@ function handleMessage(msg) {
 				chatlog.push($('#outgoingChatMessage').val());
 				$('#outgoingChatMessage').val('');
 				$('#outgoingChatMessage').blur();
+				chatIsFocused = false;
 			}
 		});
 

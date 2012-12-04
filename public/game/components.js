@@ -1,5 +1,5 @@
 //Tank creation
-
+var chatIsFocused = false;
 function makePlayerTank(player) {
 	return Crafty.e("2D, Canvas, tank" + player.color + ", Keyboard, Collision").origin("center").attr({
 		x: player.x,
@@ -21,20 +21,20 @@ function makePlayerTank(player) {
 			vx = Math.sin(angle),
 			vy = -Math.cos(angle);
 
-		if(this.isDown(Crafty.keys.W) || this.isDown(Crafty.keys.UP_ARROW)) {
+		if((this.isDown(Crafty.keys.W) || this.isDown(Crafty.keys.UP_ARROW)) && chatIsFocused === false) {
 			this.x += vx * 2;
 			this.y += vy * 2;
-		} else if(this.isDown(Crafty.keys.S) || this.isDown(Crafty.keys.DOWN_ARROW)) {
+		} else if((this.isDown(Crafty.keys.S) || this.isDown(Crafty.keys.DOWN_ARROW)) && chatIsFocused === false) {
 			this.x += -vx * 1.5;
 			this.y += -vy * 1.5;
 		}
-		if(this.isDown(Crafty.keys.A) || this.isDown(Crafty.keys.LEFT_ARROW)) {
+		if((this.isDown(Crafty.keys.A) || this.isDown(Crafty.keys.LEFT_ARROW)) && chatIsFocused === false) {
 			this.rotation = this._rotation - 3.5;
-		} else if(this.isDown(Crafty.keys.D) || this.isDown(Crafty.keys.RIGHT_ARROW)) {
+		} else if((this.isDown(Crafty.keys.D) || this.isDown(Crafty.keys.RIGHT_ARROW)) && chatIsFocused === false) {
 			this.rotation = this._rotation + 3.5;
 		}
 
-		if(this.isDown(Crafty.keys.SPACE) && playerTank.fired === false){
+		if((this.isDown(Crafty.keys.SPACE) && playerTank.fired === false) && chatIsFocused === false){
 			playerTank.fired = true;
 			conn.send(JSON.stringify({
 				type: 'fire',
@@ -43,7 +43,10 @@ function makePlayerTank(player) {
 		}
 		
 		if(this.isDown(Crafty.keys.T)){
-			$("#outgoingChatMessage").select();
+			if(chatIsFocused === false){
+				$("#outgoingChatMessage").select();
+				chatIsFocused = true;
+			}
 		}
 
 		var collision = this.hit("Solid"),
