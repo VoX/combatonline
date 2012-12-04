@@ -103,6 +103,41 @@ function makeTank(player, nametext) {
 	}).attach(nametext);
 }
 
+
+function makeProjectile(projectile) {
+	return Crafty.e("2D, Canvas, tank1, Tween").origin("center").attr({
+		id: projectile.owner,
+		x: projectile.x,
+		y: projectile.y,
+		_active: true,
+	}).bind("EnterFrame", function(e) {
+		if(!this._active) return;
+		if(projectileList[this.id].dirty === true) {
+			this.rotation = projectileList[this.id].rotation;
+			this.tween({
+				
+				x: projectileList[this.id].x,
+				y: projectileList[this.id].y
+			}, 10)
+			projectileList[this.id].dirty = false;
+		}
+		else{
+			var angle = this._rotation * (Math.PI / 180),
+			vx = Math.sin(angle),
+			vy = -Math.cos(angle);
+
+			this.x += vx * 15;
+			this.y += vy * 15;
+
+		}
+
+	}).bind("Remove", function(e) {
+//TODO make a explosion happen
+
+	});
+}
+
+
 //nametext creation
 
 function makeTankText(player) {
