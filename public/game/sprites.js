@@ -12,5 +12,12 @@ function initSprites() {
 
 	};
 
+	SPRITES2 = {
+		projectile: [0, 0],
+		explo1: [1, 0],
+		explo2: [2, 0]
+	};
+
 	Crafty.sprite(40, "../data/sprites.png", SPRITES);
+	Crafty.sprite(40, "../data/projectile.png", SPRITES2);
 }
