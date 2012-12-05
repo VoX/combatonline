@@ -21,6 +21,7 @@ exports.dbconnect = function() {
 		exports.conn = conn;
 		conn.connect(function(err) {
 			if(err) {
+				console.log('Can\'t connect to database!');
 				throw err;
 			}
 			console.log('Connected to ' + connInfo.database);
