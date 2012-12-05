@@ -42,7 +42,7 @@ idgen = 0, //temporary solution to id generation
 stepSize = 100, //time between simulation step in ms
 //collide = require('./collision.js');
 projectileList = {},
-hitslog = [],
+scores = {},
 lookupList = {}; //TODO this is getting confusing redo playerlist with names rather then pid
 importMap = require('./map/map.js'), spawnPoints = [], blocks = [], nextSpawn = 0, dbquery = require("./routes"), async = require('async');
 
