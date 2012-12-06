@@ -286,7 +286,7 @@ function addPlayer(pid, token) {
 
 function dcPlayer(pid) {
   if(playerList[pid] !== undefined) {
-	dbquery.updateStatistics(playerList[pid]);
+	//dbquery.updateStatistics(playerList[pid]);
     console.log("dc player" + pid)
     chatlog.push(playerList[pid].name + " left");
     speciallog.push({
