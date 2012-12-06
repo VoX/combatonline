@@ -2,32 +2,33 @@
 var colorgen = 1;
 
 function player(name) {
-  this.score = 0;
   this.name = name;
   this.color = String(colorgen);
   colorgen = (colorgen % 6) + 1;
-  this.spawn();
-
-  console.log(this.x + " " + this.y)
+  this.dead = true;
   this.rotation = 0;
   this.fired = false;
+  this.x = -100;
+  this.y = -100;
 }
 
-player.prototype.spawn = function() {
+player.prototype.spawn = function(){
+  this.dead = false;
   this.x = spawnPoints[nextSpawn][0] * 40;
   this.y = spawnPoints[nextSpawn][1] * 40;
   nextSpawn = (nextSpawn + 1) % spawnPoints.length;
   dirtyList[this.name] = this;
+  speciallog.push({type:"spawn",player:this});
 }
 
-function projectile(player) {
+function projectile(player){
   this.x = player.x;
   this.y = player.y;
   this.owner = player.name;
   this.rotation = player.rotation;
 }
 
-function powerUp() {
+function powerUp(){
   this.x = spawnPoints[nextSpawn][0] * 40;
   this.y = spawnPoints[nextSpawn][1] * 40;
 }
@@ -42,7 +43,9 @@ socketList = {}, // list of all sockets pid:playerobject
 idgen = 0, //temporary solution to id generation
 stepSize = 100, //time between simulation step in ms
 //collide = require('./collision.js');
-projectileList = {}, hitslog = [], lookupList = {}; //TODO this is getting confusing redo playerlist with names rather then pid
+projectileList = {},
+scores = {},
+lookupList = {}; //TODO this is getting confusing redo playerlist with names rather then pid
 importMap = require('./map/map.js'), spawnPoints = [], blocks = [], nextSpawn = 0, dbquery = require("./routes"), async = require('async');
 
 
@@ -51,27 +54,24 @@ exports.startServer = function(server) {
   console.log("Game server started");
   //setup the spawn points
   for(s in importMap.MAP) {
-    if(importMap.MAP[s] === "impassable") {
-      // var b = [];
-      var b = {
-        x: (s.split(",")[0] * 40),
-        y: (s.split(",")[1] * 40)
-      };
-      // b[1] = {x:(s.split(",")[0]*40+40),y:(s.split(",")[1]*40)};
-      // b[2] = {x:(s.split(",")[0]*40+40),y:(s.split(",")[1]*40+40)};
-      // b[3] = {x:(s.split(",")[0]*40),y:(s.split(",")[1]*40+40)};
-      blocks.push(b);
-    }
+    if(importMap.MAP[s] === "impassable"){
+     // var b = [];
+     var b = {x:(s.split(",")[0]*40),y:(s.split(",")[1]*40)};
+     // b[1] = {x:(s.split(",")[0]*40+40),y:(s.split(",")[1]*40)};
+     // b[2] = {x:(s.split(",")[0]*40+40),y:(s.split(",")[1]*40+40)};
+     // b[3] = {x:(s.split(",")[0]*40),y:(s.split(",")[1]*40+40)};
+     blocks.push(b);
+   }
 
-    if(importMap.MAP[s] === "spawn") {
-      spawnPoints.push(s.split(","));
-      importMap.MAP[s] = "passable";
-    }
+   if(importMap.MAP[s] === "spawn") {
+    spawnPoints.push(s.split(","));
+    importMap.MAP[s] = "passable";
   }
-  console.log(blocks);
-  wss = new WebSocketServer({
-    server: server
-  });
+}
+console.log(blocks);
+wss = new WebSocketServer({
+  server: server
+});
 
   //setup simulation step call
   setInterval(doStep, stepSize);
@@ -109,19 +109,19 @@ function onConnect(ws) {
 }
 
 
-function checkTwo(object1, object2, width) {
+function checkTwo(object1,object2,width){
 
-  if(Math.sqrt(Math.pow((object1.x - object2.x), 2) + Math.pow((object1.y - object2.y), 2)) <= width) return true;
-
+    if(Math.sqrt(Math.pow((object1.x-object2.x),2) + Math.pow((object1.y-object2.y),2)) <= width) return true;
+  
   return false;
 }
 
-function checkWalls(object, width) {
+function checkWalls(object,width){
 
-  for(var i = 0; i < blocks.length; i++) {
+  for(var i = 0; i < blocks.length; i++){
     //console.log(i + " " + blocks[i].x + " , " + blocks[i].y + " ; " + player.x + " , " + player.y);
     //console.log(Math.sqrt((player.x-blocks[i].x)^2 + (player.y-blocks[i].y)^2));
-    if(Math.sqrt(Math.pow((object.x - blocks[i].x), 2) + Math.pow((object.y - blocks[i].y), 2)) <= width) return true;
+    if(Math.sqrt(Math.pow((object.x-blocks[i].x),2) + Math.pow((object.y-blocks[i].y),2)) <= width) return true;
   }
   return false;
 }
@@ -131,72 +131,59 @@ function checkWalls(object, width) {
 
 function doStep() {
 
-  /* TODO: Make this actually respond if the player is cheating by going through walls
+/* TODO: Make this actually respond if the player is cheating by going through walls
   for(p in playerList){
     if(checkWalls(playerList[p], 40) === true)
       console.log("collision!, " + playerList[p].x + "," + playerList[p].y);
   }
   */
 
-
-  for(p in projectileList) {
-    var proj = projectileList[p];
-    var angle = proj.rotation * (Math.PI / 180),
+  for(var it = 0; it < 3; it++){
+    for(p in projectileList){
+      var proj = projectileList[p];
+      var angle = proj.rotation * (Math.PI / 180),
       vx = Math.sin(angle),
       vy = -Math.cos(angle);
-    for(var it = 0; it < 4; it++) {
-
 
       proj.x += vx * 15;
       proj.y += vy * 15;
 
-      if(checkWalls(projectileList[p], 30) === true) {
+      if(checkWalls(projectileList[p], 20) === true){
         console.log("hit a wall");
-        speciallog.push({
-          type: "hit",
-          owner: projectileList[p].owner,
-          hit: null
-        });
+        speciallog.push({type:"hit",proj:projectileList[p],hit:null});
         playerList[lookupList[proj.owner]].fired = false;
-        proj.hit = true;
+        delete projectileList[p];
 
-      } else {
-        //TODO fix width of projectile
-        for(t in playerList) {
-          if(checkTwo(projectileList[p], playerList[t], 30) === true && projectileList[p].owner !== playerList[t].name) {
-            console.log("hit a Tank");
-            playerList[lookupList[projectileList[p].owner]].score++;
-            //dirtyList[playerList[lookupList[projectileList[p].owner].name]] = playerList[lookupList[projectileList[p].owner]];
-            speciallog.push({
-              type: "hit",
-              owner: projectileList[p].owner,
-              hit: playerList[t].name
-            });
-            playerList[lookupList[proj.owner]].fired = false;
-            proj.hit = true;
-            playerList[t].spawn();
-            break;
-          }
+      }
+      else{
+      //TODO fix width of projectile
+      for(t in playerList){
+        if(checkTwo(projectileList[p],playerList[t], 20) === true  && projectileList[p].owner !== playerList[t].name){
+          console.log("hit a Tank");
+          playerList[t].dead = true;
+          speciallog.push({type:"hit",owner:projectileList[p].owner,hit:playerList[t].name});
+          playerList[lookupList[proj.owner]].fired = false;
+
+          delete projectileList[p];
+          playerList[t].spawn();
+          break;
         }
       }
+    }
 
-    }
-    proj.x -= vx * 15;
-    proj.y -= vy * 15;
-    if(proj.hit === true){
-      delete projectileList[p];
-    }
   }
+}
 
-  var update = {
-    type: "update",
-    players: dirtyList,
-    projectiles: projectileList,
-    chats: chatlog,
-    specials: speciallog
-  };
+var update = {
+  type: "update",
+  players: dirtyList,
+  projectiles: projectileList,
+  chats: chatlog,
+  specials: speciallog
+};
   //console.log(update.projectiles);
-  //console.log(update.players);
+  console.log(update.players);
+
   //for every player create a update that includes all dirty players and the chatlog
   for(x in socketList) {
     socketList[x].send(JSON.stringify(update));
@@ -212,27 +199,40 @@ function doStep() {
 //do message handling.
 
 function handleMessage(msg) {
-  if(msg.type === "fire") {
-    if(playerList[msg.pid].fired === false) {
+  if(msg.type === "fire"){
+    if(playerList[msg.pid].fired === false){
+      console.log(msg.pid + "fired");
       playerList[msg.pid].x = msg.player.x;
       playerList[msg.pid].y = msg.player.y;
       playerList[msg.pid].rotation = msg.player.rotation;
       projectileList[playerList[msg.pid].name] = new projectile(playerList[msg.pid]);
       playerList[msg.pid].fired = true;
     }
-  } else if(msg.type === 'update') {
+  }
+
+  else if(msg.type === 'spawn') {
+    if(playerList[msg.pid].dead === true){
+      playerList[msg.pid].spawn();
+
+    }
+  }
+
+  else if(msg.type === 'update') {
     //TODO: Check position to ensure no cheating, also only add players to dirtylist if their pos is actually dirty
+    if(playerList[msg.pid].dead === false){
     playerList[msg.pid].x = msg.player.x;
     playerList[msg.pid].y = msg.player.y;
     playerList[msg.pid].rotation = msg.player.rotation;
 
     dirtyList[playerList[msg.pid].name] = playerList[msg.pid];
+  }
 
     for(c in msg.chats) {
       chatlog.push(playerList[msg.pid].name + ": " + msg.chats[c])
     }
 
-  } else if(msg.type === 'initid') {
+  }
+  else if(msg.type === 'initid') {
     addPlayer(msg.pid, msg.token);
   }
 }
@@ -250,58 +250,59 @@ function addPlayer(pid, token) {
   var joinedplayer;
   async.waterfall([
 
-  function(cb) {
-    dbquery.conn.query("select username from users where uid = ?", [token], function(err, result) {
-      if(err) {
+    function(cb) {
+      dbquery.conn.query("select username from users where uid = ?", [token], function(err, result) {
+        if(err) {
+          console.log(err);
+          cb(null, err, undefined);
+        } else {
+          cb(null, err, result);
+        }
+      });
+    }, function(err, result, cb) {
+      if(!err && result) {
+        if(lookupList[result[0].username] !== undefined){
+          dcPlayer(lookupList[result[0].username]);
+        }
+        else{
+          joinedplayer = new player(result[0].username);
+          lookupList[joinedplayer.name] = pid;
+          playerList[pid] = joinedplayer;
+          chatlog.push(joinedplayer.name + " connected");
+          socketList[pid].send(JSON.stringify({
+            type: 'setplayer',
+            player: joinedplayer,
+            map: importMap.MAP
+          }));
+          makeAllDirty();  
+        }
+      } else {
         console.log(err);
-        cb(null, err, undefined);
-      } else {
-        cb(null, err, result);
+        dcPlayer(pid);
       }
-    });
-  }, function(err, result, cb) {
-    if(!err && result) {
-      if(lookupList[result[0].username] !== undefined) {
-        dcPlayer(lookupList[result[0].username]);
-      } else {
-        joinedplayer = new player(result[0].username);
-        lookupList[joinedplayer.name] = pid;
-        playerList[pid] = joinedplayer;
-        chatlog.push(joinedplayer.name + " connected");
-        socketList[pid].send(JSON.stringify({
-          type: 'setplayer',
-          player: joinedplayer,
-          map: importMap.MAP
-        }));
-        makeAllDirty();
-      }
-    } else {
-      console.log(err);
-      dcPlayer(pid);
-    }
-  }]);
+    }]);
 }
 
 //disconnect a player
 
 function dcPlayer(pid) {
-  if(playerList[pid] !== undefined) {
-    console.log("dc player" + pid)
-    chatlog.push(playerList[pid].name + " left");
-    speciallog.push({
-      type: 'delplayer',
-      name: playerList[pid].name
-    })
+  if(playerList[pid] !== undefined){
+  console.log("dc player" + pid)
+  chatlog.push(playerList[pid].name + " left");
+  speciallog.push({
+    type: 'delplayer',
+    name: playerList[pid].name
+  })
     delete dirtyList[pid];
-    delete lookupList[playerList[pid].name];
-    delete playerList[pid];
-  }
+  delete lookupList[playerList[pid].name];
+  delete playerList[pid];
+}
 
-  if(socketList[pid] !== undefined) {
-    socketList[pid].close();
-    delete socketList[pid];
-    //TODO: Make players stay for some time after they DC
-  }
+if(socketList[pid] !== undefined){
+  socketList[pid].close();
+  delete socketList[pid];
+ //TODO: Make players stay for some time after they DC
+}
 
   for(p in playerList) {
     dirtyList[playerList[p].name] = playerList[p];
@@ -313,8 +314,8 @@ function dcPlayer(pid) {
 
 //add another powerup to the map and send it to all clients
 
-function addPowerUp() {
-  for(pid in socketList) {
+function addPowerUp(){
+  for(pid in socketList){
     socketList[pid].send(JSON.stringify({
       type: 'newPowerUp',
       power: new powerUp()
