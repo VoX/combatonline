@@ -46,6 +46,13 @@ function makePlayerTank(player) {
 			vx = Math.sin(angle),
 			vy = -Math.cos(angle);
 
+		var window_focus = true;
+
+		window.onblur = function() { window_focus = false; }
+		window.onfocus = function() { window_focus = true; }
+
+		console.log(window_focus);
+
 		if((this.isDown(Crafty.keys.W) || this.isDown(Crafty.keys.UP_ARROW)) && chatIsFocused === false) {
 			this.x += vx * 2;
 			this.y += vy * 2;
