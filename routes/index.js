@@ -13,6 +13,7 @@ var connInfo = {
 	database: 'tanksonline'
 };
 
+
 exports.dbconnect = function() {
 	async.series([
 
@@ -222,4 +223,15 @@ exports.getStatistics = function(req, res){
 	} else {												// If the user isn't logged in
 		res.redirect('/login');								// Redirect them to the login page
 	}
+};
+
+exports.updateStatistic = function(uid, statistic){
+	conn.query('update statistics set '+statistic+'='+statistic+'+1 where uid='+uid, function(err, result){
+		if(err){
+			console.log(err);
+		}
+		else{
+			console.log('Added a kill for UID = '+uid);
+		}
+	});
 };
