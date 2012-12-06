@@ -27,12 +27,12 @@ var tileList = {},
 	MAP, scoreList = {};
 
 
-function handleMessage(msg) {
-	if(msg.type === 'setplayer') {
-		playerList[msg.player.name] = msg.player;
-		playerTank = playerList[msg.player.name];
-		chatname.text(msg.player.name);
-		MAP = msg.map;
+	function handleMessage(msg) {
+		if(msg.type === 'setplayer') {
+			playerList[msg.player.name] = msg.player;
+			playerTank = playerList[msg.player.name];
+			chatname.text(msg.player.name);
+			MAP = msg.map;
 		//start the game!
 		Crafty.scene("main");
 		//register the chat event
@@ -56,27 +56,40 @@ function handleMessage(msg) {
 		for(s in msg.specials) {
 			if(msg.specials[s].type === 'hit'){
 				Crafty.audio.play("hit");
-				if(msg.specials[s].owner === playerTank.name){
-				playerTank.fired = false;
-			}
+				if(msg.specials[s].proj.owner === playerTank.name){
+					playerTank.fired = false;
+				}
 				if(msg.specials[s].hit === playerTank.name){
-					playerTank = msg.players[playerTank.name];
-					entList[playerTank.name].x = playerTank.x;
-					entList[playerTank.name].y = playerTank.y;
+					//TODO show respawn msg
+
 				}
 				if(msg.specials[s].hit !== null){
+					entList[msg.specials[s].hit]._active = false;
+					entList[msg.specials[s].hit].visible = false;
 					makeExplosion(playerList[msg.specials[s].hit].x,playerList[msg.specials[s].hit].y,2);
-
 				}
 
-				delete projectileList[msg.specials[s].owner];
+				delete projectileList[msg.specials[s].proj.owner];
 				//console.log(projentList[msg.specials[s].owner]);	
-				makeExplosion(projentList[msg.specials[s].owner].x,projentList[msg.specials[s].owner].y,1);
-				projentList[msg.specials[s].owner].destroy();
+				makeExplosion(msg.specials[s].proj.x, msg.specials[s].proj.y,1);
+				projentList[msg.specials[s].proj.owner].destroy();
 				//delete projentList[msg.specials[s].owner];
 
 
-			}			
+			} else if(msg.specials[s].type === 'spawn') {
+				console.log(msg.specials[s].player);
+		
+				entList[msg.specials[s].player.name].y = msg.specials[s].player.y;
+				entList[msg.specials[s].player.name].x = msg.specials[s].player.x;
+				entList[msg.specials[s].player.name]._active = true;
+				entList[msg.specials[s].player.name].visible = true;
+		playerList[msg.specials[s].player.name] = msg.specials[s].player;
+				if(playerTank.name === msg.specials[s].player.name)
+					playerTank=msg.specials[s].player;
+				
+			}
+
+
 			else if(msg.specials[s].type === 'delplayer') {
 				
 				delete playerList[msg.specials[s].name];
@@ -139,7 +152,7 @@ function handleMessage(msg) {
 
 function connect() {
 	if(window["WebSocket"]) {
-		conn = new WebSocket("ws://voxic.dyndns.org:3000");
+		conn = new WebSocket("ws://" + window.location.host);
 		chat = $("#incomingChatMessages");
 		chatwindow = $("#chatDisplay");
 		onlineplayers = $("#playerList");
@@ -197,7 +210,7 @@ window.onload = function() {
 
 	Crafty.scene("main", function() {
 		initMap();
-						
+
 		//make the players tank
 		entList[playerTank.name] = makePlayerTank(playerTank);
 
@@ -210,7 +223,7 @@ window.onload = function() {
 			
 			//position of the viewport
 			var vpx = (entList[playerTank.name]._x - HW),
-				vpy = (entList[playerTank.name]._y - HH);
+			vpy = (entList[playerTank.name]._y - HH);
 
 			//TODO:Automate min/max view size calculation
 			if(vpx <= -20) {
@@ -232,10 +245,10 @@ window.onload = function() {
 			else{
 				Crafty.viewport.y = -(vpy + 20);
 			}
-	
+
 
 			//TODO: decouple the update rate from the framerate
-			if(framecount % 10 === 0 || playerTank.dirty === true) {
+			if((framecount % 10 === 0 || playerTank.dirty === true)) {
 				playerTank.dirty = false;
 				conn.send(JSON.stringify({
 					chats: chatlog,

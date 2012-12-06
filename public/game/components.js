@@ -16,6 +16,30 @@ function makePlayerTank(player) {
 
 		//TODO: disconnect the input from the framerate
 		])).bind("EnterFrame", function(e) {
+
+				if((this.isDown(Crafty.keys.SPACE) && playerTank.fired === false) && chatIsFocused === false) {
+			if(playerTank.dead === true){
+			conn.send(JSON.stringify({
+				type: 'spawn',
+				player: playerTank
+			}));
+			}
+			else{
+			playerTank.fired = true;
+			conn.send(JSON.stringify({
+				type: 'fire',
+				player: playerTank
+			}));
+		}
+		}
+
+		if(this.isDown(Crafty.keys.T)) {
+			if(chatIsFocused === false) {
+				$("#outgoingChatMessage").select();
+				chatIsFocused = true;
+			}
+		}
+
 		if(!this._active) return;
 
 		var angle = this._rotation * (Math.PI / 180),
@@ -35,20 +59,6 @@ function makePlayerTank(player) {
 			this.rotation = this._rotation + 3.5;
 		}
 
-		if((this.isDown(Crafty.keys.SPACE) && playerTank.fired === false) && chatIsFocused === false) {
-			playerTank.fired = true;
-			conn.send(JSON.stringify({
-				type: 'fire',
-				player: playerTank
-			}));
-		}
-
-		if(this.isDown(Crafty.keys.T)) {
-			if(chatIsFocused === false) {
-				$("#outgoingChatMessage").select();
-				chatIsFocused = true;
-			}
-		}
 
 		var collision = this.hit("Solid"),
 			item;

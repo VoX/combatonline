@@ -5,18 +5,20 @@ function player(name) {
   this.name = name;
   this.color = String(colorgen);
   colorgen = (colorgen % 6) + 1;
-  this.spawn();
-
-  console.log(this.x + " " + this.y)
+  this.dead = true;
   this.rotation = 0;
   this.fired = false;
+  this.x = -100;
+  this.y = -100;
 }
 
 player.prototype.spawn = function(){
+  this.dead = false;
   this.x = spawnPoints[nextSpawn][0] * 40;
   this.y = spawnPoints[nextSpawn][1] * 40;
   nextSpawn = (nextSpawn + 1) % spawnPoints.length;
   dirtyList[this.name] = this;
+  speciallog.push({type:"spawn",player:this});
 }
 
 function projectile(player){
@@ -148,7 +150,7 @@ function doStep() {
 
       if(checkWalls(projectileList[p], 20) === true){
         console.log("hit a wall");
-        speciallog.push({type:"hit",owner:projectileList[p].owner,hit:null});
+        speciallog.push({type:"hit",proj:projectileList[p],hit:null});
         playerList[lookupList[proj.owner]].fired = false;
         delete projectileList[p];
 
@@ -158,8 +160,10 @@ function doStep() {
       for(t in playerList){
         if(checkTwo(projectileList[p],playerList[t], 20) === true  && projectileList[p].owner !== playerList[t].name){
           console.log("hit a Tank");
+          playerList[t].dead = true;
           speciallog.push({type:"hit",owner:projectileList[p].owner,hit:playerList[t].name});
           playerList[lookupList[proj.owner]].fired = false;
+
           delete projectileList[p];
           playerList[t].spawn();
           break;
@@ -178,7 +182,7 @@ var update = {
   specials: speciallog
 };
   //console.log(update.projectiles);
-  //console.log(update.players);
+  console.log(update.players);
 
   //for every player create a update that includes all dirty players and the chatlog
   for(x in socketList) {
@@ -197,6 +201,7 @@ var update = {
 function handleMessage(msg) {
   if(msg.type === "fire"){
     if(playerList[msg.pid].fired === false){
+      console.log(msg.pid + "fired");
       playerList[msg.pid].x = msg.player.x;
       playerList[msg.pid].y = msg.player.y;
       playerList[msg.pid].rotation = msg.player.rotation;
@@ -205,13 +210,22 @@ function handleMessage(msg) {
     }
   }
 
+  else if(msg.type === 'spawn') {
+    if(playerList[msg.pid].dead === true){
+      playerList[msg.pid].spawn();
+
+    }
+  }
+
   else if(msg.type === 'update') {
     //TODO: Check position to ensure no cheating, also only add players to dirtylist if their pos is actually dirty
+    if(playerList[msg.pid].dead === false){
     playerList[msg.pid].x = msg.player.x;
     playerList[msg.pid].y = msg.player.y;
     playerList[msg.pid].rotation = msg.player.rotation;
 
     dirtyList[playerList[msg.pid].name] = playerList[msg.pid];
+  }
 
     for(c in msg.chats) {
       chatlog.push(playerList[msg.pid].name + ": " + msg.chats[c])
