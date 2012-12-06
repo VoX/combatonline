@@ -60,12 +60,14 @@ var tileList = {},
 					playerTank.fired = false;
 				}
 				if(msg.specials[s].hit === playerTank.name){
-					//TODO show respawn msg
-
+					playerTank.dead = true;
 				}
 				if(msg.specials[s].hit !== null){
 					entList[msg.specials[s].hit]._active = false;
 					entList[msg.specials[s].hit].visible = false;
+					if(msg.specials[s].hit !== playerTank.name){
+					entList[msg.specials[s].hit].textname.visible = false;
+				}
 					makeExplosion(playerList[msg.specials[s].hit].x,playerList[msg.specials[s].hit].y,2);
 				}
 
@@ -83,9 +85,13 @@ var tileList = {},
 				entList[msg.specials[s].player.name].x = msg.specials[s].player.x;
 				entList[msg.specials[s].player.name]._active = true;
 				entList[msg.specials[s].player.name].visible = true;
+
+				
 		playerList[msg.specials[s].player.name] = msg.specials[s].player;
 				if(playerTank.name === msg.specials[s].player.name)
 					playerTank=msg.specials[s].player;
+				else
+					entList[msg.specials[s].player.name].textname.visible = true;
 				
 			}
 

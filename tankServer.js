@@ -149,10 +149,12 @@ function doStep() {
       proj.y += vy * 15;
 
       if(checkWalls(projectileList[p], 20) === true){
-        console.log("hit a wall");
-        speciallog.push({type:"hit",proj:projectileList[p],hit:null});
+
+        var tmp = {owner:projectileList[p].owner,x:projectileList[p].x,y:projectileList[p].y};
+        speciallog.push({type:"hit",proj:tmp,hit:null});
         playerList[lookupList[proj.owner]].fired = false;
         delete projectileList[p];
+
 
       }
       else{
@@ -160,12 +162,14 @@ function doStep() {
       for(t in playerList){
         if(checkTwo(projectileList[p],playerList[t], 20) === true  && projectileList[p].owner !== playerList[t].name){
           console.log("hit a Tank");
+
           playerList[t].dead = true;
-          speciallog.push({type:"hit",owner:projectileList[p].owner,hit:playerList[t].name});
+          var tmp = {owner:projectileList[p].owner,x:projectileList[p].x,y:projectileList[p].y};
+          speciallog.push({type:"hit",proj:tmp,hit:playerList[t].name});
           playerList[lookupList[proj.owner]].fired = false;
 
           delete projectileList[p];
-          playerList[t].spawn();
+          
           break;
         }
       }
@@ -182,7 +186,8 @@ var update = {
   specials: speciallog
 };
   //console.log(update.projectiles);
-  console.log(update.players);
+  if(update.specials.length > 0)
+  console.log(update.specials);
 
   //for every player create a update that includes all dirty players and the chatlog
   for(x in socketList) {
@@ -200,7 +205,7 @@ var update = {
 
 function handleMessage(msg) {
   if(msg.type === "fire"){
-    if(playerList[msg.pid].fired === false){
+    if(playerList[msg.pid].fired === false && playerList[msg.pid].dead === false){
       console.log(msg.pid + "fired");
       playerList[msg.pid].x = msg.player.x;
       playerList[msg.pid].y = msg.player.y;
@@ -219,7 +224,7 @@ function handleMessage(msg) {
 
   else if(msg.type === 'update') {
     //TODO: Check position to ensure no cheating, also only add players to dirtylist if their pos is actually dirty
-    if(playerList[msg.pid].dead === false){
+    if(playerList[msg.pid].dead === false && msg.player.dead === false){
     playerList[msg.pid].x = msg.player.x;
     playerList[msg.pid].y = msg.player.y;
     playerList[msg.pid].rotation = msg.player.rotation;
