@@ -27,7 +27,22 @@ exports.dbconnect = function() {
 			}
 			console.log('Connected to ' + connInfo.database);
 		});
+		handleDisconnect(conn);
 	}]);
+};
+
+function handleDisconnect(connection){
+	connection.on('error', function(err){
+		if(!err.fatal)
+			return
+		if(err.code !== 'PROTOCOL_CONNECTION_LOST')
+			throw err;
+		console.log('Re-connecting to the database: ' + err.stack);
+		
+		connection = mysql.createConnection(connInfo);
+		handleDisconnect(connection);
+		connection.connect();
+	});
 };
 
 exports.try_login = function(req, res) {
