@@ -243,7 +243,7 @@ exports.updateStatistic = function(data){
 	var kills = data.kills;
 	var deaths = data.deaths;
 	var shotsFired = data.shotsFired;
-	conn.query('update statistics set '+statistic+'='+statistic+'+1 where username='+username, function(err, result){
+	conn.query('update statistics set gamesPlayed=gamesPlayed+1, kills=kills+' + kills + ', deaths=deaths+' + deaths + ', shotsFired=shotsFired+' + shotsFired + ' where username='+username, function(err, result){
 		if(err){
 			console.log(err);
 		}
