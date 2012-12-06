@@ -2,13 +2,15 @@
 
 <h1>Register - Tanks Online</h1>
 
-<form method="POST" action="/register">
+<form method="POST" name="myform" action="/register">
   username: <input type="text" name="name" size="40" maxlength="40" /> <br>
   password: <input id="pass" type="password" name="password" size="40" maxlength="40" /><div id="passCheck"></div><br>
   retype password: <input id="passC" type="password" name="passwordCheck" size="40" maxlength="40" /><div id="passMatch"></div><br>
   email: <input type="text" name="email" size="40" maxlength="40" /> <br>
   <input type="submit" name="submit" value="Submit" />
 </form>
+
+<body OnLoad="document.myform.name.focus();">
 
 <script>
 
