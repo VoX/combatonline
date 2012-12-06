@@ -246,16 +246,18 @@ exports.getStatistics = function(req, res){
 };
 
 exports.updateStatistics = function(data){
+	console.log(data);
 	var username = data.name;
 	var kills = data.kills;
 	var deaths = data.deaths;
 	var shotsFired = data.shotsFired;
 	
-	conn.query('select uid from users where username='+username, function(err, result){
+	conn.query('select uid from users where username="'+username + '"', function(err, result){
 		if(err)
 			console.log(err);
 		else{
 			uid = result[0].uid;
+			console.log('update statistics set gamesPlayed=gamesPlayed+1, kills=kills+' + kills + ', deaths=deaths+' + deaths + ', shotsFired=shotsFired+' + shotsFired + ' where uid='+uid);
 			conn.query('update statistics set gamesPlayed=gamesPlayed+1, kills=kills+' + kills + ', deaths=deaths+' + deaths + ', shotsFired=shotsFired+' + shotsFired + ' where uid='+uid, function(err, result){
 				if(err){
 					console.log(err);
