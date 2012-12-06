@@ -164,6 +164,9 @@ function doStep() {
           console.log("hit a Tank");
 
           playerList[t].dead = true;
+          scores[playerList[t].name].deaths++;
+          scores[projectileList[p].owner].kills++;
+
           var tmp = {owner:projectileList[p].owner,x:projectileList[p].x,y:projectileList[p].y};
           speciallog.push({type:"hit",proj:tmp,hit:playerList[t].name});
           playerList[lookupList[proj.owner]].fired = false;
@@ -207,6 +210,7 @@ function handleMessage(msg) {
   if(msg.type === "fire"){
     if(playerList[msg.pid].fired === false && playerList[msg.pid].dead === false){
       console.log(msg.pid + "fired");
+      scores[playerList[msg.pid].name].shotsFired++;
       playerList[msg.pid].x = msg.player.x;
       playerList[msg.pid].y = msg.player.y;
       playerList[msg.pid].rotation = msg.player.rotation;
@@ -271,6 +275,7 @@ function addPlayer(pid, token) {
         }
         else{
           joinedplayer = new player(result[0].username);
+          scores[result[0].username] = {name:result[0].username,kills:0,deaths:0,shotsFired:0};
           lookupList[joinedplayer.name] = pid;
           playerList[pid] = joinedplayer;
           chatlog.push(joinedplayer.name + " connected");
@@ -292,8 +297,11 @@ function addPlayer(pid, token) {
 
 function dcPlayer(pid) {
   if(playerList[pid] !== undefined){
+    
   console.log("dc player" + pid)
   chatlog.push(playerList[pid].name + " left");
+  dbquery.updateStatistics(scores[playerList[pid].name]);
+
   speciallog.push({
     type: 'delplayer',
     name: playerList[pid].name
