@@ -196,14 +196,21 @@ exports.getStatistics = function(req, res){
 			function(result, cb){
 				for(var i = 0; i < result.length; i++){						// Loop through the statistic entries
 					var stat = result[i];									// Grab the current statistic object
+					var deaths = 1;
+					var shots = 1;
+					if(parseInt(stat.deaths) !== 0)
+						deaths = stat.deaths;
+					if(parseInt(stat.shotsFired) !== 0)
+						shots = stat.shotsFired;
+					
 					if(stat.uid === req.session.uid){
 						userStatsTable += '<tr>'													// Create a new table row
 						userStatsTable += '<td id="username">' + stat.username + '</td>';			// Add the user's name to the row
 						userStatsTable += '<td id="gamesPlayed">' + stat.gamesPlayed + '</td>';		// Add the # of games played to the row
 						userStatsTable += '<td id="kills">' + stat.kills + '</td>';					// Add the # of kills to the row
 						userStatsTable += '<td id="deaths">' + stat.deaths + '</td>';				// Add the # of deaths to the row
-						userStatsTable += '<td id="ratio">' + (parseInt(stat.kills)/parseInt(stat.deaths)).toFixed(2) + '</td>';	// Add the K/D ratio to the row
-						userStatsTable += '<td id="accuracy">' + ((parseInt(stat.kills)/parseInt(stat.shotsFired))*100).toFixed(2) + '%</td>';	// Add the accuracy to the row
+						userStatsTable += '<td id="ratio">' + (parseInt(stat.kills)/deaths).toFixed(2) + '</td>';	// Add the K/D ratio to the row
+						userStatsTable += '<td id="accuracy">' + ((parseInt(stat.kills)/shots)*100).toFixed(2) + '%</td>';	// Add the accuracy to the row
 					}
 					else{
 						statsTable += '<tr>'													// Create a new table row
@@ -211,8 +218,8 @@ exports.getStatistics = function(req, res){
 						statsTable += '<td id="gamesPlayed">' + stat.gamesPlayed + '</td>';		// Add the # of games played to the row
 						statsTable += '<td id="kills">' + stat.kills + '</td>';					// Add the # of kills to the row
 						statsTable += '<td id="deaths">' + stat.deaths + '</td>';				// Add the # of deaths to the row
-						statsTable += '<td id="ratio">' + (parseInt(stat.kills)/parseInt(stat.deaths)).toFixed(2) + '</td>';	// Add the K/D ratio to the row
-						statsTable += '<td id="accuracy">' + ((parseInt(stat.kills)/parseInt(stat.shotsFired))*100).toFixed(2) + '%</td>';	// Add the accuracy to the row
+						statsTable += '<td id="ratio">' + (parseInt(stat.kills)/deaths).toFixed(2) + '</td>';	// Add the K/D ratio to the row
+						statsTable += '<td id="accuracy">' + ((parseInt(stat.kills)/shots)*100).toFixed(2) + '%</td>';	// Add the accuracy to the row
 					}
 				}
 				userStatsTable += '</table>';
