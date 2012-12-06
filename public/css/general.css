@@ -48,3 +48,10 @@ div#passMatch{
   display: inline;
   font-weight: bold;
 }
+
+
+img.screenshots {
+  display: block;
+  margin-right: auto;
+  margin-left: auto;
+}
