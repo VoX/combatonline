@@ -238,17 +238,25 @@ exports.getStatistics = function(req, res){
 	}
 };
 
-exports.updateStatistic = function(data){
+exports.updateStatistics = function(data){
 	var username = data.username;
 	var kills = data.kills;
 	var deaths = data.deaths;
 	var shotsFired = data.shotsFired;
-	conn.query('update statistics set gamesPlayed=gamesPlayed+1, kills=kills+' + kills + ', deaths=deaths+' + deaths + ', shotsFired=shotsFired+' + shotsFired + ' where username='+username, function(err, result){
-		if(err){
+	
+	conn.query('select uid from users where username='+username, function(err, result){
+		if(err)
 			console.log(err);
-		}
 		else{
-			console.log('Added a kill for UID = '+uid);
+			uid = result[0].uid;
+			conn.query('update statistics set gamesPlayed=gamesPlayed+1, kills=kills+' + kills + ', deaths=deaths+' + deaths + ', shotsFired=shotsFired+' + shotsFired + ' where uid='+uid, function(err, result){
+				if(err){
+					console.log(err);
+				}
+				else{
+					console.log('Updated statistics for ' + username);
+				}
+			});
 		}
 	});
 };
