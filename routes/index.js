@@ -98,7 +98,7 @@ exports.try_register = function(req, res) {
 				res.redirect('/register');
 			} else {
 				var uid = result.insertId;
-				conn.query('insert into statistics values (NULL, ?, 0, 0, 0, 0, 0)', [uid], function(err1, result) {
+				conn.query('insert into statistics values (NULL, ?, 0, 0, 0, 0)', [uid], function(err1, result) {
 					if(err1){
 						conn.query('delete from users where uid = ?', [uid], function(err2, result1){
 							if(err2){
