@@ -139,7 +139,7 @@ function handleMessage(msg) {
 
 function connect() {
 	if(window["WebSocket"]) {
-		conn = new WebSocket("ws://voxic.dyndns.org:3000");
+		conn = new WebSocket("ws://localhost:3000");
 		chat = $("#incomingChatMessages");
 		chatwindow = $("#chatDisplay");
 		onlineplayers = $("#playerList");
