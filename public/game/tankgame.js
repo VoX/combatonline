@@ -79,7 +79,7 @@ var tileList = {},
 
 
 			} else if(msg.specials[s].type === 'spawn') {
-				console.log(msg.specials[s].player);
+				//console.log(msg.specials[s].player);
 		
 				entList[msg.specials[s].player.name].y = msg.specials[s].player.y;
 				entList[msg.specials[s].player.name].x = msg.specials[s].player.x;
