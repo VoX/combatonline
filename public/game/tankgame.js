@@ -67,6 +67,8 @@ var tileList = {},
 					entList[msg.specials[s].hit].visible = false;
 					if(msg.specials[s].hit !== playerTank.name){
 					entList[msg.specials[s].hit].textname.visible = false;
+				}else{
+					$('#spawnMsg').text("Press Spacebar to Spawn");
 				}
 					makeExplosion(playerList[msg.specials[s].hit].x,playerList[msg.specials[s].hit].y,2);
 				}
@@ -79,7 +81,10 @@ var tileList = {},
 
 
 			} else if(msg.specials[s].type === 'spawn') {
-				//console.log(msg.specials[s].player);
+				    $('#spawnMsg').text(" ");
+
+
+				console.log(msg.specials[s].player);
 		
 				entList[msg.specials[s].player.name].y = msg.specials[s].player.y;
 				entList[msg.specials[s].player.name].x = msg.specials[s].player.x;
@@ -171,6 +176,7 @@ function connect() {
 			onlineplayers.append($('<li></li>').text("CONNECTION FAILURE!")).css("color", "red");
 		};
 		conn.onopen = function(evt) {
+			$('#spawnMsg').text("Press Spacebar to Spawn");
 			var token = $('#token').val();
 
 			conn.send(JSON.stringify({
