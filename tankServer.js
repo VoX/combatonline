@@ -10,6 +10,7 @@ function player(name) {
   this.fired = false;
   this.x = -100;
   this.y = -100;
+  this.score = 0;
 }
 
 player.prototype.spawn = function(){
@@ -166,6 +167,7 @@ function doStep() {
           playerList[t].dead = true;
           scores[playerList[t].name].deaths++;
           scores[projectileList[p].owner].kills++;
+          playerList[lookupList[projectileList[p].owner]].score = scores[projectileList[p].owner].kills;
 
           var tmp = {owner:projectileList[p].owner,x:projectileList[p].x,y:projectileList[p].y};
           speciallog.push({type:"hit",proj:tmp,hit:playerList[t].name});
