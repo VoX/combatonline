@@ -1,6 +1,7 @@
 body {
   padding: 50px;
   font-family: 'Ubuntu', sans-serif;
+   text-align: center;
 }
 
 a {
@@ -9,6 +10,7 @@ a {
 
 #msg {
   color: red;
+   text-align: center;
 }
 
 td, th {

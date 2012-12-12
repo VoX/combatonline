@@ -6220,7 +6220,8 @@ Crafty.extend({
 		//prevent default actions for all keys except backspace and F1-F12.
 		//Among others this prevent the arrow keys from scrolling the parent page
 		//of an iframe hosting the game
-		if(Crafty.selected && !(e.key == 8 || e.key >= 112 && e.key <= 135)) {
+		/*
+        if(Crafty.selected && !(e.key == 8 || e.key >= 112 && e.key <= 135)) {
 			if(e.stopPropagation) e.stopPropagation();
             else e.cancelBubble = true;
 
@@ -6228,6 +6229,7 @@ Crafty.extend({
 			else e.returnValue = false;
 			return false;
 		}
+        */
 	}
 });
 

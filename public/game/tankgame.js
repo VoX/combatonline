@@ -27,12 +27,12 @@ var tileList = {},
 	MAP, scoreList = {};
 
 
-	function handleMessage(msg) {
-		if(msg.type === 'setplayer') {
-			playerList[msg.player.name] = msg.player;
-			playerTank = playerList[msg.player.name];
-			chatname.text(msg.player.name);
-			MAP = msg.map;
+function handleMessage(msg) {
+	if(msg.type === 'setplayer') {
+		playerList[msg.player.name] = msg.player;
+		playerTank = playerList[msg.player.name];
+		chatname.text(msg.player.name);
+		MAP = msg.map;
 		//start the game!
 		Crafty.scene("main");
 		//register the chat event
@@ -54,58 +54,51 @@ var tileList = {},
 		}
 
 		for(s in msg.specials) {
-			if(msg.specials[s].type === 'hit'){
+			if(msg.specials[s].type === 'hit') {
 				Crafty.audio.play("hit");
-				if(msg.specials[s].proj.owner === playerTank.name){
+				if(msg.specials[s].proj.owner === playerTank.name) {
 					playerTank.fired = false;
 				}
-				if(msg.specials[s].hit === playerTank.name){
+				if(msg.specials[s].hit === playerTank.name) {
 					playerTank.dead = true;
 				}
-				if(msg.specials[s].hit !== null){
+				if(msg.specials[s].hit !== null) {
 					entList[msg.specials[s].hit]._active = false;
 					entList[msg.specials[s].hit].visible = false;
-					if(msg.specials[s].hit !== playerTank.name){
-					entList[msg.specials[s].hit].textname.visible = false;
-				}else{
-					$('#spawnMsg').text("Press Spacebar to Spawn");
-				}
-					makeExplosion(playerList[msg.specials[s].hit].x,playerList[msg.specials[s].hit].y,2);
+					if(msg.specials[s].hit !== playerTank.name) {
+						entList[msg.specials[s].hit].textname.visible = false;
+					} else {
+						$('#spawnMsg').text("Press Spacebar to Spawn");
+					}
+					makeExplosion(playerList[msg.specials[s].hit].x, playerList[msg.specials[s].hit].y, 2);
 				}
 
 				delete projectileList[msg.specials[s].proj.owner];
 				//console.log(projentList[msg.specials[s].owner]);	
-				makeExplosion(msg.specials[s].proj.x, msg.specials[s].proj.y,1);
+				makeExplosion(msg.specials[s].proj.x, msg.specials[s].proj.y, 1);
 				projentList[msg.specials[s].proj.owner].destroy();
 				//delete projentList[msg.specials[s].owner];
 
-
 			} else if(msg.specials[s].type === 'spawn') {
-				    $('#spawnMsg').text(" ");
+				$('#spawnMsg').text(" ");
 
 
 				console.log(msg.specials[s].player);
-		
+
 				entList[msg.specials[s].player.name].y = msg.specials[s].player.y;
 				entList[msg.specials[s].player.name].x = msg.specials[s].player.x;
 				entList[msg.specials[s].player.name]._active = true;
 				entList[msg.specials[s].player.name].visible = true;
 
-				
-		playerList[msg.specials[s].player.name] = msg.specials[s].player;
-				if(playerTank.name === msg.specials[s].player.name)
-					playerTank=msg.specials[s].player;
-				else
-					entList[msg.specials[s].player.name].textname.visible = true;
-				
-			}
 
+				playerList[msg.specials[s].player.name] = msg.specials[s].player;
+				if(playerTank.name === msg.specials[s].player.name) playerTank = msg.specials[s].player;
+				else entList[msg.specials[s].player.name].textname.visible = true;
 
-			else if(msg.specials[s].type === 'delplayer') {
-				
+			} else if(msg.specials[s].type === 'delplayer') {
+
 				delete playerList[msg.specials[s].name];
 				//entList[msg.specials[s].name].destroy();
-
 			} else if(msg.specials[s].type === "allplayers") {
 				onlineplayers.empty();
 				scoreList = {};
@@ -130,7 +123,7 @@ var tileList = {},
 
 
 			} else {
-				
+
 				projectileList[x] = p;
 				projectileList[x].dirty = true;
 			}
@@ -138,7 +131,7 @@ var tileList = {},
 
 
 		for(x in msg.players) {
-			
+
 			var p = msg.players[x];
 			p.name = x;
 			//if this is a new player we havent seen before
@@ -154,7 +147,7 @@ var tileList = {},
 				playerList[x].dirty = true;
 			}
 		}
-	} else if(msg.type === 'newPowerUp'){
+	} else if(msg.type === 'newPowerUp') {
 		makePowerUp(msg.power);
 	}
 }
@@ -195,14 +188,31 @@ window.onload = function() {
 	//start crafty
 	Crafty.init(W, H);
 	Crafty.canvas.init(30);
+	$(document).keyup(function(e) {
 
+		if(e.keyCode == 84) {
+			if(chatIsFocused === false) {
+				$("#outgoingChatMessage").focus();
+				chatIsFocused = true;
+			}
+		} 
+	});
+	$("#cr-stage").keyup(function(e) {
+
+		if(e.keyCode == 84) {
+			if(chatIsFocused === false) {
+				$("#outgoingChatMessage").focus();
+				chatIsFocused = true;
+			}
+		} 
+	});
 
 	//the loading screen that will display while our assets load
 	Crafty.scene("loading", function() {
 		//load takes an array of assets and a callback when complete
-		Crafty.load(["../data/sprites.png","../data/projectile.png"], function() {
-			Crafty.audio.add("hit", ["../data/death.mp3","../data/death.wav"]);
-			Crafty.audio.add("fire", ["../data/missile.mp3","../data/missile.wav"]);
+		Crafty.load(["../data/sprites.png", "../data/projectile.png"], function() {
+			Crafty.audio.add("hit", ["../data/death.mp3", "../data/death.wav"]);
+			Crafty.audio.add("fire", ["../data/missile.mp3", "../data/missile.wav"]);
 			initSprites();
 			connect();
 		});
@@ -232,29 +242,25 @@ window.onload = function() {
 
 			framecount = framecount + 1;
 
-			
+
 			//position of the viewport
 			var vpx = (entList[playerTank.name]._x - HW),
-			vpy = (entList[playerTank.name]._y - HH);
+				vpy = (entList[playerTank.name]._y - HH);
 
 			//TODO:Automate min/max view size calculation
 			if(vpx <= -20) {
 				Crafty.viewport.x = 0;
-			}
-			else if(vpx+20 >= 1200){
+			} else if(vpx + 20 >= 1200) {
 				Crafty.viewport.x = -1200;
-			}
-			else{
+			} else {
 				Crafty.viewport.x = -(vpx + 20);
 			}
 
 			if(vpy <= -20) {
 				Crafty.viewport.y = 0;
-			}
-			else if(vpy+20 >= 840){
+			} else if(vpy + 20 >= 840) {
 				Crafty.viewport.y = -840;
-			}
-			else{
+			} else {
 				Crafty.viewport.y = -(vpy + 20);
 			}
 
