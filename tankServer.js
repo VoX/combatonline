@@ -153,7 +153,9 @@ function doStep() {
 
         var tmp = {owner:projectileList[p].owner,x:projectileList[p].x,y:projectileList[p].y};
         speciallog.push({type:"hit",proj:tmp,hit:null});
+          if(lookupList[projectileList[p].owner] !== undefined){
         playerList[lookupList[proj.owner]].fired = false;
+      }
         delete projectileList[p];
 
 
