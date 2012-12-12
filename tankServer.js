@@ -166,12 +166,14 @@ function doStep() {
 
           playerList[t].dead = true;
           scores[playerList[t].name].deaths++;
+          if(lookupList[projectileList[p].owner] !== undefined){
           scores[projectileList[p].owner].kills++;
           playerList[lookupList[projectileList[p].owner]].score = scores[projectileList[p].owner].kills;
-
+          playerList[lookupList[proj.owner]].fired = false;
+        }
           var tmp = {owner:projectileList[p].owner,x:projectileList[p].x,y:projectileList[p].y};
           speciallog.push({type:"hit",proj:tmp,hit:playerList[t].name});
-          playerList[lookupList[proj.owner]].fired = false;
+   
 
           delete projectileList[p];
           
