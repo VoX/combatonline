@@ -148,7 +148,7 @@ function doStep() {
       proj.x += vx * 15;
       proj.y += vy * 15;
 
-      if(checkWalls(projectileList[p], 20) === true){
+      if(checkWalls(projectileList[p], 25) === true){
 
         var tmp = {owner:projectileList[p].owner,x:projectileList[p].x,y:projectileList[p].y};
         speciallog.push({type:"hit",proj:tmp,hit:null});
@@ -160,7 +160,7 @@ function doStep() {
       else{
       //TODO fix width of projectile
       for(t in playerList){
-        if(checkTwo(projectileList[p],playerList[t], 20) === true  && projectileList[p].owner !== playerList[t].name){
+        if(checkTwo(projectileList[p],playerList[t], 25) === true  && projectileList[p].owner !== playerList[t].name){
           console.log("hit a Tank");
 
           playerList[t].dead = true;
@@ -189,8 +189,7 @@ var update = {
   specials: speciallog
 };
   //console.log(update.projectiles);
-  if(update.specials.length > 0)
-  console.log(update.specials);
+
 
   //for every player create a update that includes all dirty players and the chatlog
   for(x in socketList) {
@@ -209,7 +208,7 @@ var update = {
 function handleMessage(msg) {
   if(msg.type === "fire"){
     if(playerList[msg.pid].fired === false && playerList[msg.pid].dead === false){
-      console.log(msg.pid + "fired");
+     // console.log(msg.pid + "fired");
       scores[playerList[msg.pid].name].shotsFired++;
       playerList[msg.pid].x = msg.player.x;
       playerList[msg.pid].y = msg.player.y;
