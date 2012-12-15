@@ -80,6 +80,7 @@ exports.try_login = function(req, res) {
 			} else {
 				if(result.length === 1) {
 					req.session.uid = result[0].uid;
+					req.session.uname = username;
 					req.flash('goodmsg', 'Successfully logged in as ' + username);
 					res.redirect('/');
 				} else {
@@ -152,7 +153,8 @@ exports.index = function(req, res) {
 			goodmsg: goodmsg,
 			badmsg:badmsg,
 			page: "about",
-			loginout: "Logout"
+			loginout: "Logout",
+			uname:req.session.uname
 		});
 	}
 };
@@ -168,12 +170,14 @@ exports.login = function(req, res) {
 			goodmsg: goodmsg,
 			badmsg:badmsg,
 			page: "login",
-			loginout: "Login"
+			loginout: "Login",
+			uname:req.session.uname
 		});
 };
 
 exports.logout = function(req, res) {
 	req.session.uid = undefined;
+	req.session.uname = undefined;
 	req.flash('goodmsg', "Logged out");
 	res.redirect('/login');
 };
@@ -189,7 +193,8 @@ exports.register = function(req, res) {
 			goodmsg: goodmsg,
 			badmsg:badmsg,
 			page: "register",
-			loginout: "Login"
+			loginout: "Login",
+			uname:req.session.uname
 		});
 };
 
@@ -204,7 +209,8 @@ exports.playgame = function(req, res) {
 			badmsg:badmsg,
 			page: "game",
 			loginout: "Logout",
-			token: req.session.uid
+			token: req.session.uid,
+			uname:req.session.uname
 		});
 	} else {
 		res.redirect('/login');
@@ -221,7 +227,8 @@ exports.about = function(req, res) {
 			badmsg:badmsg,
 			page: "about",
 			loginout: "Logout",
-			token: req.session.uid
+			token: req.session.uid,
+			uname:req.session.uname
 		});
 	} else {
 	var goodmsg = req.flash('goodmsg')[0] || '';
@@ -232,7 +239,8 @@ exports.about = function(req, res) {
 			badmsg:badmsg,
 			page: "about",
 			loginout: "Login",
-			token: req.session.uid
+			token: req.session.uid,
+			uname:req.session.uname
 		});
 	}
 };

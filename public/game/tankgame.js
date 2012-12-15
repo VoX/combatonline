@@ -20,6 +20,8 @@ var tileList = {},
 	//stores crafty entity information
 	W = 800,
 	H = 600,
+	mapx = 0,
+	mapy = 0,
 	HW = W / 2,
 	HH = H / 2,
 	framecount = 0,
@@ -250,23 +252,23 @@ window.onload = function() {
 			//TODO:Automate min/max view size calculation
 			if(vpx <= -20) {
 				Crafty.viewport.x = 0;
-			} else if(vpx + 20 >= 1200) {
-				Crafty.viewport.x = -1200;
+			} else if(vpx + 20 >= mapx-W+40) {
+				Crafty.viewport.x = -(mapx-W+40);
 			} else {
 				Crafty.viewport.x = -(vpx + 20);
 			}
 
 			if(vpy <= -20) {
 				Crafty.viewport.y = 0;
-			} else if(vpy + 20 >= 840) {
-				Crafty.viewport.y = -840;
+			} else if(vpy + 20 >= mapy-H+40) {
+				Crafty.viewport.y = -(mapy-H+40);
 			} else {
 				Crafty.viewport.y = -(vpy + 20);
 			}
 
 
 			//TODO: decouple the update rate from the framerate
-			if((framecount % 10 === 0 || playerTank.dirty === true)) {
+			if((framecount % 5 === 0 && playerTank.dirty === true)) {
 				playerTank.dirty = false;
 				conn.send(JSON.stringify({
 					chats: chatlog,
@@ -280,8 +282,16 @@ window.onload = function() {
 };
 
 function initMap() {
+
 	for(var obj in MAP) {
+
 		var pos = obj.split(",");
+		if(pos[0]* 40 > mapx){
+			mapx = pos[0]* 40;
+		}
+		if(pos[1]* 40 > mapy){
+			mapy = pos[1]* 40;
+		}
 		if(MAP[obj] === "passable") {
 			tileList[obj] = Crafty.e("2D, Canvas, passable").attr({
 				x: pos[0] * 40,
@@ -289,10 +299,13 @@ function initMap() {
 			});
 
 		} else {
-			tileList[obj] = Crafty.e("2D, Canvas, impassable").attr({
+			tileList[obj] = Crafty.e("2D, Color,Canvas, impassable").attr({
 				x: pos[0] * 40,
-				y: pos[1] * 40
-			});
+				y: pos[1] * 40,
+				w:38,
+				h:38
+
+			}).color("#009900");
 			tileList[obj].addComponent("Solid, Collision").collision();
 		}
 	}

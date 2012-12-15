@@ -26,7 +26,10 @@ body {
 #footer{
   background-color:#7FFF00;clear:both;text-align:center;height:20px;color;
 }
-
+#loginmsg{
+  color: black;
+  text-align: left;
+}
 #goodmsg {
   color: white;
   display:inline-block;
