@@ -1,23 +1,17 @@
-<%= include header %>
-
-
-<h1>Login - Combat! Online</h1>
+<div class="padded">
+<h1>Login</h1>
 
 <form method="POST" name="myform" action="/login">
-  username: <input type="text" name="username" size = "40" maxlength="40" /> <br>
-  password: <input type="password" name="password" size="40" maxlength="40" /> <br>
+  Username: <input type="text" name="username" size = "40" maxlength="40" /> <br>
+  Password: <input type="password" name="password" size="40" maxlength="40" /> <br>
   <input type="submit" name="submit" value="Login" />
 </form>
 
 <body OnLoad="document.myform.username.focus();">
 
-<div id="msg" style="color:<%=msgcolor %>">
-  <%= msg %>
-</div>
 <br>
 <a href="/register">Or register?</a>
-<br><br>
+</div>
 
-<img class="screenshots" src="/data/screenshot.png"></img>
 
-<%= include footer %>
+

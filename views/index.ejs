@@ -1,17 +1,33 @@
-<!DOCTYPE html>
-<head>
-	
-	<script type="text/javascript" src="/libs/jquery.js"></script>
-	<script type="text/javascript" src="/libs/crafty.js"></script>
-	<script type="text/javascript" src="/game/sprites.js"></script>
-	<script type="text/javascript" src="/game/tankgame.js"></script>
-	<title>Combat: Online</title>
-	<style>
-	body, html { margin:0; padding: 0; overflow:hidden; font-size:20px }
-	#cr-stage { border:2px solid black; margin:5px auto; color:white }
-	</style>
-</head>
-<body>
-	<div class="name"><h1>Username:<%= name %></h1></div>
+<%= include header %>
+
+<div id="container" style="height:800px">
+
+<div id="header" style="background-color:#0B3B39;">
+<h1 style="display:inline-block;margin-bottom:0;padding:10px;text-align:left;color:#7FFF00">Combat! Online</h1> <span id="goodmsg"><%= goodmsg %></span><span id="badmsg"><%= badmsg %></span></div>
+
+<div id="menu" style="">
+	<br>
+<div id="menuitems">
+<a href="/playgame">Play Game</a><br>
+<a href="/<%=loginout%>"><%=loginout%></a><br>
+<a href="/statistics">Statistics</a><br>
+<a href="/about">About</a> 
+</div>
+</div>
+
+<div id="content">
+<%if(page === "game"){%><%=include gamepage%><%}%>
+<%if(page === "login"){%><%=include loginpage%><%}%>
+<%if(page === "register"){%><%=include registerpage%><%}%>
+<%if(page === "statistics"){%><%=include statisticspage%><%}%>
+<%if(page === "about"){%><%=include about%><%}%></div>
+
+
+</div>
+<div id="footer">
+
+</div>
+
+
 </body>
 </html>

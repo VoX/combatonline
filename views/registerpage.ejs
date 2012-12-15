@@ -1,13 +1,15 @@
-<%= include header %>
-
-<h1>Register - Combat! Online</h1>
+<div class="padded">
+<h1>Register</h1>
 
 <form method="POST" name="myform" action="/register">
-  username: <input type="text" name="name" size="40" maxlength="40" /> <br>
-  password: <input id="pass" type="password" name="password" size="40" maxlength="40" /><div id="passCheck"></div><br>
-  retype password: <input id="passC" type="password" name="passwordCheck" size="40" maxlength="40" /><div id="passMatch"></div><br>
-  email: <input type="text" name="email" size="40" maxlength="40" /> <br>
-  <input type="submit" name="submit" value="Submit" />
+<fieldset>
+<label for="name">Username:</label><input type="text" name="name" size="30" maxlength="40">
+<label for="password">Password:</label><input id="pass" type="password" name="password" size="30" maxlength="40"><div id="passCheck"></div>
+<label for="passwordCheck">Retype Password:</label><input id="passC" type="password" name="passwordCheck" size="30" maxlength="40"><div id="passMatch"></div>
+<label for="email">Email:</label><input type="text" name="email" size="30" maxlength="70">
+ <br> <input type="submit" name="submit" value="Submit" id="submitbtn">
+</fieldset>
+
 </form>
 
 <body OnLoad="document.myform.name.focus();">
@@ -48,8 +50,4 @@ pass.keyup('input', function(){
 
 </script>
 
-<div id="msg">
-  <%= msg %>
 </div>
-
-<%= include footer %>

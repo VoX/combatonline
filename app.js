@@ -41,6 +41,7 @@ app.get('/logout', routes.logout);
 app.post('/register', routes.try_register);
 app.get('/playgame', routes.playgame);
 app.get('/statistics', routes.getStatistics);
+app.get('/about', routes.about);
 
 var webServer = http.createServer(app);
 

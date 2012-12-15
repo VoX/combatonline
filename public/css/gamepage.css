@@ -1,13 +1,6 @@
-body, html
-{
-  font-family: 'Ubuntu', sans-serif;
-margin:0px; padding: 0px; overflow:auto;
-font-size:20px;background-color: black; color: white;
-}
-
 #wrapper
 {
-margin: 50px auto; width: 1200px;
+margin: 50px auto; width: 1250px;
 }
 
 #gamediv
@@ -25,22 +18,14 @@ margin: 50px auto; width: 1200px;
 list-style-type: none; margin: 4px; padding: 0; font-size:16px;
 } 
 
-#logout
-{
-list-style-type: none; margin: 4px;font-size:16px; color :red; ;
-} 
-
-#logoutdiv {
-float : left; width: 380px ; padding: 5px float: bottom; margin-top: 50px; text-align: right
-}
 
 #cr-stage 
 {
-
+	border: 5px outset #A9F5F2 ;
 } 
 
 #chatdiv {
-float : left; width: 380px ; padding: 5px; 
+float : left; width: 380px ; padding: 15px; 
 }
 	
 #chatDisplay

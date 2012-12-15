@@ -1,15 +1,40 @@
 body {
-  padding: 50px;
+  padding-top: 4px;
+  padding-left: 20px;
   font-family: 'Ubuntu', sans-serif;
+   text-align: left;
+   background-color:#1C1C1C; 
+   color:#A9F5F2;
+}
+
+
+#menu{
+  background-color:#0A2A0A;height:800px;width:150px;float:left;text-align:left;color:#A9F5F2
+}
+
+#menuitems{
+  padding:10px; text-align:left;margin:0px
+}
+.padded{
+  padding:20px;
+}
+
+#content{
+  background-color:#1C1C1C;height:600px;width:80%;float:left;
+}
+
+#footer{
+  background-color:#7FFF00;clear:both;text-align:center;height:20px;color;
+}
+
+#goodmsg {
+  color: white;
+  display:inline-block;
    text-align: center;
 }
-
-a {
-  color: #00B7FF;
-}
-
-#msg {
+#badmsg {
   color: red;
+  display:inline-block;
    text-align: center;
 }
 
@@ -27,7 +52,7 @@ table {
 }
 
 h1 {
-  text-align: center;
+  text-align: left;
 }
 
 div.stats {
@@ -54,6 +79,30 @@ div#passMatch{
 
 img.screenshots {
   display: block;
-  margin-right: auto;
-  margin-left: auto;
 }
+
+a {text-decoration:none; font-size: 25px}
+a:link {color:#00FF00;}      /* unvisited link */
+a:visited {color:#00FF00;}  /* visited link */
+a:hover {color:#FF00FF;}  /* mouse over link */
+a:active {color:#0000FF;}  /* selected link */
+
+
+label{
+display:inline-block;
+width:160px;
+margin-right:40px;
+text-align:left;
+}
+
+input{
+
+}
+
+fieldset{
+border:none;
+width:600px;
+margin:20px;
+}
+
+#submitbtn{position: relative; bottom: 100%;left: 60%}

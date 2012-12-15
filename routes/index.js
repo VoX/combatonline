@@ -66,7 +66,7 @@ exports.try_login = function(req, res) {
 	var username = req.body.username;
 	var password = req.body.password;
 	if(!username || !password) {
-		req.flash('msg', 'Missing login information!');
+		req.flash('badmsg', 'Missing login information!');
 		res.redirect('/login');
 	} else {
 		var crypto = require('crypto');
@@ -75,16 +75,16 @@ exports.try_login = function(req, res) {
 		conn.query("select uid from users where username = ? and password = ?", [username, md5sum.digest('hex')], function(err, result) {
 			if(err) {
 				console.log(err);
-				req.flash('msg', err);
+				req.flash('badmsg', err);
 				res.redirect('/login');
 			} else {
 				if(result.length === 1) {
 					req.session.uid = result[0].uid;
-					req.flash('msg', 'Successfully logged in as ' + username);
+					req.flash('goodmsg', 'Successfully logged in as ' + username);
 					res.redirect('/');
 				} else {
 					console.log(result);
-					req.flash('msg', "Login failed, please try again.");
+					req.flash('badmsg', "Login failed, please try again.");
 					res.redirect('/login');
 				}
 			}
@@ -102,10 +102,10 @@ exports.try_register = function(req, res) {
 	var email = req.body.email;
 	var passwordCheck = req.body.passwordCheck;
 	if(!name || !password || !passwordCheck || !email) {
-		req.flash('msg', 'Missing information for registration!');
+		req.flash('badmsg', 'Missing information for registration!');
 		res.redirect('/register');
 	} else if(password != passwordCheck) {
-		req.flash('msg', 'Password does not match');
+		req.flash('badmsg', 'Password does not match');
 		res.redirect('/register');
 	} else {
 		var crypto = require('crypto');
@@ -114,7 +114,7 @@ exports.try_register = function(req, res) {
 		conn.query("insert into users values (NULL, ?, ?, ?)", [name, md5sum.digest('hex'), email], function(err, result) {
 			if(err) {
 				console.log("error: " + err);
-				req.flash('msg', err);
+				req.flash('badmsg', err);
 				res.redirect('/register');
 			} else {
 				var uid = result.insertId;
@@ -123,17 +123,16 @@ exports.try_register = function(req, res) {
 						conn.query('delete from users where uid = ?', [uid], function(err2, result1) {
 							if(err2) {
 								console.log(err2);
-								req.flash('msg', err2);
+								req.flash('badmsg', err2);
 								res.redirect('/register');
 							}
 						});
 						console.log(err1);
-						req.flash('msg', err);
-						req.flash('color', 'green');
+						req.flash('badmsg', err);
 						res.redirect('/register');
 					}
 				});
-				req.flash('msg', "Registration sucessful, please log in.");
+				req.flash('goodmsg', "Registration sucessful, please log in.");
 				res.redirect('/login');
 			}
 		});
@@ -143,50 +142,98 @@ exports.try_register = function(req, res) {
 
 
 exports.index = function(req, res) {
-	var msg = req.flash('msg')[0] || '';
+	var goodmsg = req.flash('goodmsg')[0] || '';
+	var badmsg = req.flash('basmsg')[0] || '';
 	if(req.session.uid === undefined) {
 		res.redirect('/login');
 	} else {
-		res.render('landingpage', {
-			title: 'Landing Page',
-			msg: msg
+		res.render('index', {
+			title: 'About Combat! Online',
+			goodmsg: goodmsg,
+			badmsg:badmsg,
+			page: "about",
+			loginout: "Logout"
 		});
 	}
 };
 
 exports.login = function(req, res) {
-	var msg = req.flash('msg')[0] || '';
-	var color = req.flash('color')[0] || 'red';
-
-	res.render('loginpage', {
-		title: "Login",
-		msgcolor: color,
-		msg: msg
-	});
+	var goodmsg = req.flash('goodmsg')[0] || '';
+	var badmsg = req.flash('basmsg')[0] || '';
+		if(req.session.uid !== undefined) {
+			res.redirect('/logout');
+		}
+		res.render('index', {
+			title: 'Login Combat! Online',
+			goodmsg: goodmsg,
+			badmsg:badmsg,
+			page: "login",
+			loginout: "Login"
+		});
 };
 
 exports.logout = function(req, res) {
 	req.session.uid = undefined;
-	req.flash('msg', "Logged out");
+	req.flash('goodmsg', "Logged out");
 	res.redirect('/login');
 };
 
 exports.register = function(req, res) {
-	var msg = req.flash('msg')[0] || '';
-	res.render('registerpage', {
-		title: "Register",
-		msg: msg
-	});
+	var goodmsg = req.flash('goodmsg')[0] || '';
+	var badmsg = req.flash('basmsg')[0] || '';
+		if(req.session.uid !== undefined) {
+			res.redirect('/logout');
+		}
+		res.render('index', {
+			title: ' Combat! Online',
+			goodmsg: goodmsg,
+			badmsg:badmsg,
+			page: "register",
+			loginout: "Login"
+		});
 };
 
 
 exports.playgame = function(req, res) {
 	if(req.session.uid !== undefined) {
-		res.render('gamepage', {
+	var goodmsg = req.flash('goodmsg')[0] || '';
+	var badmsg = req.flash('basmsg')[0] || '';
+		res.render('index', {
+			title: ' Combat! Online',
+			goodmsg: goodmsg,
+			badmsg:badmsg,
+			page: "game",
+			loginout: "Logout",
 			token: req.session.uid
 		});
 	} else {
 		res.redirect('/login');
+	}
+};
+
+exports.about = function(req, res) {
+	if(req.session.uid !== undefined) {
+	var goodmsg = req.flash('goodmsg')[0] || '';
+	var badmsg = req.flash('basmsg')[0] || '';
+		res.render('index', {
+			title: ' Combat! Online',
+			goodmsg: goodmsg,
+			badmsg:badmsg,
+			page: "about",
+			loginout: "Logout",
+			token: req.session.uid
+		});
+	} else {
+	var goodmsg = req.flash('goodmsg')[0] || '';
+	var badmsg = req.flash('basmsg')[0] || '';
+		res.render('index', {
+			title: ' Combat! Online',
+			goodmsg: goodmsg,
+			badmsg:badmsg,
+			page: "about",
+			loginout: "Login",
+			token: req.session.uid
+		});
 	}
 };
 
@@ -198,7 +245,8 @@ exports.getStatistics = function(req, res) {
 	if(conn._protocol._destroyed === true) {
 		exports.doconnect();
 	}
-	var msg = req.flash('msg')[0] || '';
+	var goodmsg = req.flash('goodmsg')[0] || '';
+	var badmsg = req.flash('basmsg')[0] || '';
 	if(req.session.uid !== undefined) { // If the user is logged in
 		// Create the stats table with the proper headers
 		var userStatsTable = '<table class="stats" id="user_stats_table"><tr><th>Username</th><th>Games Played</th><th>Kills</th><th>Deaths</th><th>K/D Ratio</th><th>Accuracy</th></tr>';
@@ -244,19 +292,26 @@ exports.getStatistics = function(req, res) {
 			}
 			userStatsTable += '</table>';
 			statsTable += '</table>'; // Complete the statistics tables
-			res.render('statisticspage', { // Render them to the statistics page
-				title: 'statistics',
+			res.render('index', {
+				title: 'Statistics Combat! Online',
+				goodmsg: goodmsg,
+				badmsg:badmsg,
+				page: "statistics",
+				loginout: "Logout",
 				user_stats_table: userStatsTable,
 				full_stats_table: statsTable,
-				msg: msg
 			});
 		}], function(err) {
 			console.log(err)
-			req.flash('msg', err)
-			res.render('statisticspage', {
-				title: 'statistics',
-				user_stats_table: err,
-				full_stats_table: err
+			req.flash('badmsg', err)
+			res.render('index', {
+				title: 'Statistics Combat! Online',
+				goodmsg: goodmsg,
+				badmsg:badmsg,
+				page: "statistics",
+				loginout: "Logout",
+				user_stats_table: userStatsTable,
+				full_stats_table: statsTable,
 			});
 		});
 	} else { // If the user isn't logged in
