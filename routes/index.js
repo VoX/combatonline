@@ -144,7 +144,7 @@ exports.try_register = function(req, res) {
 
 exports.index = function(req, res) {
 	var goodmsg = req.flash('goodmsg')[0] || '';
-	var badmsg = req.flash('basmsg')[0] || '';
+	var badmsg = req.flash('badmsg')[0] || '';
 	if(req.session.uid === undefined) {
 		res.redirect('/about');
 	} else {
@@ -161,14 +161,14 @@ exports.index = function(req, res) {
 
 exports.login = function(req, res) {
 	var goodmsg = req.flash('goodmsg')[0] || '';
-	var badmsg = req.flash('basmsg')[0] || '';
+	var badmsg = req.flash('badmsg')[0] || '';
 		if(req.session.uid !== undefined) {
 			res.redirect('/logout');
 		}
 		res.render('index', {
 			title: 'Login Combat! Online',
 			goodmsg: goodmsg,
-			badmsg:badmsg,
+			badmsg: badmsg,
 			page: "login",
 			loginout: "Login",
 			uname:req.session.uname
@@ -184,14 +184,14 @@ exports.logout = function(req, res) {
 
 exports.register = function(req, res) {
 	var goodmsg = req.flash('goodmsg')[0] || '';
-	var badmsg = req.flash('basmsg')[0] || '';
+	var badmsg = req.flash('badmsg')[0] || '';
 		if(req.session.uid !== undefined) {
 			res.redirect('/logout');
 		}
 		res.render('index', {
 			title: ' Combat! Online',
 			goodmsg: goodmsg,
-			badmsg:badmsg,
+			badmsg: badmsg,
 			page: "register",
 			loginout: "Login",
 			uname:req.session.uname
@@ -202,11 +202,11 @@ exports.register = function(req, res) {
 exports.playgame = function(req, res) {
 	if(req.session.uid !== undefined) {
 	var goodmsg = req.flash('goodmsg')[0] || '';
-	var badmsg = req.flash('basmsg')[0] || '';
+	var badmsg = req.flash('badmsg')[0] || '';
 		res.render('index', {
 			title: ' Combat! Online',
 			goodmsg: goodmsg,
-			badmsg:badmsg,
+			badmsg: badmsg,
 			page: "game",
 			loginout: "Logout",
 			token: req.session.uid,
@@ -221,11 +221,11 @@ exports.playgame = function(req, res) {
 exports.about = function(req, res) {
 	if(req.session.uid !== undefined) {
 	var goodmsg = req.flash('goodmsg')[0] || '';
-	var badmsg = req.flash('basmsg')[0] || '';
+	var badmsg = req.flash('badmsg')[0] || '';
 		res.render('index', {
 			title: ' Combat! Online',
 			goodmsg: goodmsg,
-			badmsg:badmsg,
+			badmsg: badmsg,
 			page: "about",
 			loginout: "Logout",
 			token: req.session.uid,
@@ -233,11 +233,11 @@ exports.about = function(req, res) {
 		});
 	} else {
 	var goodmsg = req.flash('goodmsg')[0] || '';
-	var badmsg = req.flash('basmsg')[0] || '';
+	var badmsg = req.flash('badmsg')[0] || '';
 		res.render('index', {
 			title: ' Combat! Online',
 			goodmsg: goodmsg,
-			badmsg:badmsg,
+			badmsg: badmsg,
 			page: "about",
 			loginout: "Login",
 			token: req.session.uid,
