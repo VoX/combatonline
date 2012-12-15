@@ -308,6 +308,7 @@ exports.getStatistics = function(req, res) {
 				loginout: "Logout",
 				user_stats_table: userStatsTable,
 				full_stats_table: statsTable,
+				uname:req.session.uname
 			});
 		}], function(err) {
 			console.log(err)
@@ -320,6 +321,7 @@ exports.getStatistics = function(req, res) {
 				loginout: "Logout",
 				user_stats_table: userStatsTable,
 				full_stats_table: statsTable,
+				uname:req.session.uname
 			});
 		});
 	} else { // If the user isn't logged in
