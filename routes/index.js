@@ -146,7 +146,7 @@ exports.index = function(req, res) {
 	var goodmsg = req.flash('goodmsg')[0] || '';
 	var badmsg = req.flash('basmsg')[0] || '';
 	if(req.session.uid === undefined) {
-		res.redirect('/login');
+		res.redirect('/about');
 	} else {
 		res.render('index', {
 			title: 'About Combat! Online',
@@ -213,6 +213,7 @@ exports.playgame = function(req, res) {
 			uname:req.session.uname
 		});
 	} else {
+		req.flash('goodmsg', "Login to begin playing.");
 		res.redirect('/login');
 	}
 };
@@ -325,6 +326,7 @@ exports.getStatistics = function(req, res) {
 			});
 		});
 	} else { // If the user isn't logged in
+		req.flash('goodmsg', "Login to view statistics.");
 		res.redirect('/login'); // Redirect them to the login page
 	}
 };
