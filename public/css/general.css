@@ -90,8 +90,8 @@ a:active {color:#0000FF;}  /* selected link */
 
 label{
 display:inline-block;
-width:160px;
-margin-right:40px;
+width:150px;
+margin-right:0px;
 text-align:left;
 }
 
@@ -101,8 +101,15 @@ input{
 
 fieldset{
 border:none;
-width:600px;
-margin:20px;
+width:500px;
+margin:10px;
 }
 
-#submitbtn{position: relative; bottom: 100%;left: 60%}
+
+.input {
+    border: 1px solid #006;
+    background: #ffc;
+}
+.button {
+    border: 1px solid #006;
+    background: #9cf;

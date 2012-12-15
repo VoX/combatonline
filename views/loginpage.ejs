@@ -2,9 +2,11 @@
 <h1>Login</h1>
 
 <form method="POST" name="myform" action="/login">
-  Username: <input type="text" name="username" size = "40" maxlength="40" /> <br>
-  Password: <input type="password" name="password" size="40" maxlength="40" /> <br>
-  <input type="submit" name="submit" value="Login" />
+<fieldset>
+<label for="username">Username:</label><input type="text" name="username" size="30" maxlength="40" class="input">
+<label for="password">Password:</label><input id="pass" type="password" name="password" size="30" maxlength="40" class="input">
+ <label>&nbsp; </label><input type="submit" name="submit" value="Login" id="submitbtn" class="button">
+</fieldset>
 </form>
 
 <body OnLoad="document.myform.username.focus();">
