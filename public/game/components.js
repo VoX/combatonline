@@ -107,7 +107,7 @@ function makeTank(player, nametext) {
 				rotation: playerList[this.id].rotation,
 				x: playerList[this.id].x,
 				y: playerList[this.id].y
-			}, 8)
+			}, 5)
 			playerList[this.id].dirty = false;
 		}
 

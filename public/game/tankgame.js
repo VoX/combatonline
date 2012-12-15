@@ -39,15 +39,7 @@ function handleMessage(msg) {
 		Crafty.scene("main");
 		//register the chat event
 		//TODO Fix WASD
-		$('#outgoingChatMessage').keypress(function(event) {
-			if(event.which == 13) {
-				event.preventDefault();
-				chatlog.push($('#outgoingChatMessage').val());
-				$('#outgoingChatMessage').val('');
-				$('#outgoingChatMessage').blur();
-				chatIsFocused = false;
-			}
-		});
+
 
 	} else if(msg.type === 'update' && playerTank !== undefined) {
 		for(c in msg.chats) {
@@ -190,12 +182,27 @@ window.onload = function() {
 	//start crafty
 	Crafty.init(W, H);
 	Crafty.canvas.init(30);
+			$('#outgoingChatMessage').keypress(function(event) {
+			if(event.which == 13) {
+				event.preventDefault();
+				chatlog.push($('#outgoingChatMessage').val());
+				$('#outgoingChatMessage').val('');
+				$('#outgoingChatMessage').blur();
+			}
+		});
+
+	$("#outgoingChatMessage").focus(function(e){
+		chatIsFocused = true;
+	});
+	$("#outgoingChatMessage").blur(function(e){
+		chatIsFocused = false;
+	});
+
 	$(document).keyup(function(e) {
 
 		if(e.keyCode == 84) {
 			if(chatIsFocused === false) {
 				$("#outgoingChatMessage").focus();
-				chatIsFocused = true;
 			}
 		} 
 	});
@@ -204,7 +211,6 @@ window.onload = function() {
 		if(e.keyCode == 84) {
 			if(chatIsFocused === false) {
 				$("#outgoingChatMessage").focus();
-				chatIsFocused = true;
 			}
 		} 
 	});
