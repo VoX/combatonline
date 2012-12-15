@@ -2,7 +2,7 @@ var mysql = require('mysql');
 var program = require('commander');
 var async = require('async');
 
-var conn; 
+var conn;
 
 
 var connInfo = {
@@ -12,6 +12,14 @@ var connInfo = {
 	password: 'tankgame',
 	database: 'tanksonline'
 };
+
+exports.doconnect = function() {
+	console.log('reconnecting');
+	conn = mysql.createConnection(conn.config);
+	exports.conn = conn;
+	handleDisconnect();
+	conn.connect();
+}
 
 
 exports.dbconnect = function() {
@@ -27,25 +35,34 @@ exports.dbconnect = function() {
 			}
 			console.log('Connected to ' + connInfo.database);
 		});
-		handleDisconnect(conn);
+		handleDisconnect();
 	}]);
 };
 
-function handleDisconnect(connection){
-	connection.on('error', function(err){
-		if(!err.fatal)
-			return
-		if(err.code !== 'PROTOCOL_CONNECTION_LOST')
+function handleDisconnect() {
+	conn.on('error', function(err) {
+		if(!err.fatal) {
+			return;
+		}
+
+		if(err.code !== 'PROTOCOL_CONNECTION_LOST') {
 			throw err;
-		console.log('Re-connecting to the database: ' + err.stack);
-		
-		connection = mysql.createConnection(connInfo);
-		handleDisconnect(connection);
-		connection.connect();
+		}
+		console.log('Re-connecting lost connection: ' + err.stack);
+		exports.doconnect();
 	});
-};
+
+	conn.on('close', function(err) {
+
+		console.log('Re-connecting lost connection: ' + err.stack);
+		exports.doconnect();
+	});
+}
 
 exports.try_login = function(req, res) {
+	if(conn._protocol._destroyed === true) {
+		exports.doconnect();
+	}
 	var username = req.body.username;
 	var password = req.body.password;
 	if(!username || !password) {
@@ -77,17 +94,20 @@ exports.try_login = function(req, res) {
 
 
 exports.try_register = function(req, res) {
+	if(conn._protocol._destroyed === true) {
+		exports.doconnect();
+	}
 	var name = req.body.name;
 	var password = req.body.password;
 	var email = req.body.email;
-	var passwordCheck= req.body.passwordCheck;
+	var passwordCheck = req.body.passwordCheck;
 	if(!name || !password || !passwordCheck || !email) {
 		req.flash('msg', 'Missing information for registration!');
 		res.redirect('/register');
-	} else if(password != passwordCheck){
-			req.flash('msg', 'Password does not match');
-			res.redirect('/register');
-	}else{
+	} else if(password != passwordCheck) {
+		req.flash('msg', 'Password does not match');
+		res.redirect('/register');
+	} else {
 		var crypto = require('crypto');
 		var md5sum = crypto.createHash('md5');
 		md5sum.update(password);
@@ -99,9 +119,9 @@ exports.try_register = function(req, res) {
 			} else {
 				var uid = result.insertId;
 				conn.query('insert into statistics values (NULL, ?, 0, 0, 0, 0)', [uid], function(err1, result) {
-					if(err1){
-						conn.query('delete from users where uid = ?', [uid], function(err2, result1){
-							if(err2){
+					if(err1) {
+						conn.query('delete from users where uid = ?', [uid], function(err2, result1) {
+							if(err2) {
 								console.log(err2);
 								req.flash('msg', err2);
 								res.redirect('/register');
@@ -126,7 +146,7 @@ exports.index = function(req, res) {
 	var msg = req.flash('msg')[0] || '';
 	if(req.session.uid === undefined) {
 		res.redirect('/login');
-	} else{
+	} else {
 		res.render('landingpage', {
 			title: 'Landing Page',
 			msg: msg
@@ -171,98 +191,98 @@ exports.playgame = function(req, res) {
 };
 
 /**
- * Retrieves the statistics from the database and displays them on 
+ * Retrieves the statistics from the database and displays them on
  * the statistics page.
  */
-exports.getStatistics = function(req, res){
+exports.getStatistics = function(req, res) {
+	if(conn._protocol._destroyed === true) {
+		exports.doconnect();
+	}
 	var msg = req.flash('msg')[0] || '';
-	if(req.session.uid !== undefined){										// If the user is logged in
+	if(req.session.uid !== undefined) { // If the user is logged in
 		// Create the stats table with the proper headers
 		var userStatsTable = '<table class="stats" id="user_stats_table"><tr><th>Username</th><th>Games Played</th><th>Kills</th><th>Deaths</th><th>K/D Ratio</th><th>Accuracy</th></tr>';
 		var statsTable = '<table class="stats" id="full_stats_table"><tr><th>Username</th><th>Games Played</th><th>Kills</th><th>Deaths</th><th>K/D Ratio</th><th>Accuracy</th></tr>';
 		async.waterfall([
-			function (cb){
-				conn.query('select S.uid, S.gamesPlayed, S.kills, S.deaths, S.shotsFired, U.username from statistics S, users U where S.uid = U.uid order by S.kills desc', function(err, result){
-					if(err){
-						console.log(err);
-						cb(err)
-					}
-					else{
-						cb(null, result);
-					}
-				});
-			},
-			
-			function(result, cb){
-				for(var i = 0; i < result.length; i++){						// Loop through the statistic entries
-					var stat = result[i];									// Grab the current statistic object
-					var deaths = 1;
-					var shots = 1;
-					if(parseInt(stat.deaths) !== 0)
-						deaths = stat.deaths;
-					if(parseInt(stat.shotsFired) !== 0)
-						shots = stat.shotsFired;
-					
-					if(stat.uid === req.session.uid){
-						userStatsTable += '<tr>'													// Create a new table row
-						userStatsTable += '<td id="username">' + stat.username + '</td>';			// Add the user's name to the row
-						userStatsTable += '<td id="gamesPlayed">' + stat.gamesPlayed + '</td>';		// Add the # of games played to the row
-						userStatsTable += '<td id="kills">' + stat.kills + '</td>';					// Add the # of kills to the row
-						userStatsTable += '<td id="deaths">' + stat.deaths + '</td>';				// Add the # of deaths to the row
-						userStatsTable += '<td id="ratio">' + (parseInt(stat.kills)/deaths).toFixed(2) + '</td>';	// Add the K/D ratio to the row
-						userStatsTable += '<td id="accuracy">' + ((parseInt(stat.kills)/shots)*100).toFixed(2) + '%</td>';	// Add the accuracy to the row
-					}
-					else{
-						statsTable += '<tr>'													// Create a new table row
-						statsTable += '<td id="username">' + stat.username + '</td>';			// Add the user's name to the row
-						statsTable += '<td id="gamesPlayed">' + stat.gamesPlayed + '</td>';		// Add the # of games played to the row
-						statsTable += '<td id="kills">' + stat.kills + '</td>';					// Add the # of kills to the row
-						statsTable += '<td id="deaths">' + stat.deaths + '</td>';				// Add the # of deaths to the row
-						statsTable += '<td id="ratio">' + (parseInt(stat.kills)/deaths).toFixed(2) + '</td>';	// Add the K/D ratio to the row
-						statsTable += '<td id="accuracy">' + ((parseInt(stat.kills)/shots)*100).toFixed(2) + '%</td>';	// Add the accuracy to the row
-					}
+
+		function(cb) {
+			conn.query('select S.uid, S.gamesPlayed, S.kills, S.deaths, S.shotsFired, U.username from statistics S, users U where S.uid = U.uid order by S.kills desc', function(err, result) {
+				if(err) {
+					console.log(err);
+					cb(err)
+				} else {
+					cb(null, result);
 				}
-				userStatsTable += '</table>';
-				statsTable += '</table>';							// Complete the statistics tables
-				res.render('statisticspage', {						// Render them to the statistics page
-					title : 'statistics',
-					user_stats_table : userStatsTable,
-					full_stats_table : statsTable,
-					msg : msg
-				});
-			}
-		], 
-			function(err){
-				console.log(err)
-				req.flash('msg', err)
-				res.render('statisticspage', {
-					title : 'statistics',
-					user_stats_table : err,
-					full_stats_table : err});
 			});
-	} else {												// If the user isn't logged in
-		res.redirect('/login');								// Redirect them to the login page
+		},
+
+		function(result, cb) {
+			for(var i = 0; i < result.length; i++) { // Loop through the statistic entries
+				var stat = result[i]; // Grab the current statistic object
+				var deaths = 1;
+				var shots = 1;
+				if(parseInt(stat.deaths) !== 0) deaths = stat.deaths;
+				if(parseInt(stat.shotsFired) !== 0) shots = stat.shotsFired;
+
+				if(stat.uid === req.session.uid) {
+					userStatsTable += '<tr>' // Create a new table row
+					userStatsTable += '<td id="username">' + stat.username + '</td>'; // Add the user's name to the row
+					userStatsTable += '<td id="gamesPlayed">' + stat.gamesPlayed + '</td>'; // Add the # of games played to the row
+					userStatsTable += '<td id="kills">' + stat.kills + '</td>'; // Add the # of kills to the row
+					userStatsTable += '<td id="deaths">' + stat.deaths + '</td>'; // Add the # of deaths to the row
+					userStatsTable += '<td id="ratio">' + (parseInt(stat.kills) / deaths).toFixed(2) + '</td>'; // Add the K/D ratio to the row
+					userStatsTable += '<td id="accuracy">' + ((parseInt(stat.kills) / shots) * 100).toFixed(2) + '%</td>'; // Add the accuracy to the row
+				} else {
+					statsTable += '<tr>' // Create a new table row
+					statsTable += '<td id="username">' + stat.username + '</td>'; // Add the user's name to the row
+					statsTable += '<td id="gamesPlayed">' + stat.gamesPlayed + '</td>'; // Add the # of games played to the row
+					statsTable += '<td id="kills">' + stat.kills + '</td>'; // Add the # of kills to the row
+					statsTable += '<td id="deaths">' + stat.deaths + '</td>'; // Add the # of deaths to the row
+					statsTable += '<td id="ratio">' + (parseInt(stat.kills) / deaths).toFixed(2) + '</td>'; // Add the K/D ratio to the row
+					statsTable += '<td id="accuracy">' + ((parseInt(stat.kills) / shots) * 100).toFixed(2) + '%</td>'; // Add the accuracy to the row
+				}
+			}
+			userStatsTable += '</table>';
+			statsTable += '</table>'; // Complete the statistics tables
+			res.render('statisticspage', { // Render them to the statistics page
+				title: 'statistics',
+				user_stats_table: userStatsTable,
+				full_stats_table: statsTable,
+				msg: msg
+			});
+		}], function(err) {
+			console.log(err)
+			req.flash('msg', err)
+			res.render('statisticspage', {
+				title: 'statistics',
+				user_stats_table: err,
+				full_stats_table: err
+			});
+		});
+	} else { // If the user isn't logged in
+		res.redirect('/login'); // Redirect them to the login page
 	}
 };
 
-exports.updateStatistics = function(data){
+exports.updateStatistics = function(data) {
+	if(conn._protocol._destroyed === true) {
+		exports.doconnect();
+	}
 	console.log(data);
 	var username = data.name;
 	var kills = data.kills;
 	var deaths = data.deaths;
 	var shotsFired = data.shotsFired;
-	
-	conn.query('select uid from users where username="'+username + '"', function(err, result){
-		if(err)
-			console.log(err);
-		else{
+
+	conn.query('select uid from users where username="' + username + '"', function(err, result) {
+		if(err) console.log(err);
+		else {
 			uid = result[0].uid;
-			console.log('update statistics set gamesPlayed=gamesPlayed+1, kills=kills+' + kills + ', deaths=deaths+' + deaths + ', shotsFired=shotsFired+' + shotsFired + ' where uid='+uid);
-			conn.query('update statistics set gamesPlayed=gamesPlayed+1, kills=kills+' + kills + ', deaths=deaths+' + deaths + ', shotsFired=shotsFired+' + shotsFired + ' where uid='+uid, function(err, result){
-				if(err){
+			console.log('update statistics set gamesPlayed=gamesPlayed+1, kills=kills+' + kills + ', deaths=deaths+' + deaths + ', shotsFired=shotsFired+' + shotsFired + ' where uid=' + uid);
+			conn.query('update statistics set gamesPlayed=gamesPlayed+1, kills=kills+' + kills + ', deaths=deaths+' + deaths + ', shotsFired=shotsFired+' + shotsFired + ' where uid=' + uid, function(err, result) {
+				if(err) {
 					console.log(err);
-				}
-				else{
+				} else {
 					console.log('Updated statistics for ' + username);
 				}
 			});
