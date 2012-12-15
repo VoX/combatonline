@@ -85,7 +85,8 @@ img.screenshots {
   display: block;
 }
 
-a {text-decoration:none; font-size: 25px}
+a.large {font-size: 25px}
+a {text-decoration:none}
 a:link {color:#00FF00;}      /* unvisited link */
 a:visited {color:#00FF00;}  /* visited link */
 a:hover {color:#FF00FF;}  /* mouse over link */
