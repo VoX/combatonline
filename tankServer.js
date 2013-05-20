@@ -1,3 +1,4 @@
+
 //TODO:replace with db query
 var colorgen = 1;
 
@@ -48,8 +49,8 @@ idgen = 0, //temporary solution to id generation
 stepSize = 100, //time between simulation step in ms
 //collide = require('./collision.js');
 projectileList = {}, scores = {}, lookupList = {}; //TODO this is getting confusing redo playerlist with names rather then pid
-importMap = require('./map/map.js'), spawnPoints = [], blocks = [], nextSpawn = 0, dbquery = require("./routes"), async = require('async');
-
+importMap = require('./map/map.js'), spawnPoints = [], blocks = [], nextSpawn = 0, async = require('async');
+database = require('./routes/index.js');
 
 
 exports.startServer = function(server) {
@@ -278,10 +279,7 @@ function addPlayer(pid, token) {
   async.waterfall([
 
   function(cb) {
-    if(dbquery.conn._protocol._destroyed === true) {
-      dbquery.doconnect();
-    }
-    dbquery.conn.query("select username from users where uid = ?", [token], function(err, result) {
+    database.dbconn.get("user:" + token, function(err, result) {
       if(err) {
         console.log(err);
         cb(null, err, undefined);
@@ -290,13 +288,14 @@ function addPlayer(pid, token) {
       }
     });
   }, function(err, result, cb) {
+    result = JSON.parse(result);
     if(!err && result) {
-      if(lookupList[result[0].username] !== undefined) {
-        dcPlayer(lookupList[result[0].username]);
+      if(lookupList[result.username] !== undefined) {
+        dcPlayer(lookupList[result.username]);
       } else {
-        joinedplayer = new player(result[0].username);
-        scores[result[0].username] = {
-          name: result[0].username,
+        joinedplayer = new player(result.username);
+        scores[result.username] = {
+          name: result.username,
           kills: 0,
           deaths: 0,
           shotsFired: 0
@@ -325,7 +324,7 @@ function dcPlayer(pid) {
 
     console.log("dc player" + pid)
     chatlog.push(playerList[pid].name + " left");
-    dbquery.updateStatistics(scores[playerList[pid].name]);
+    database.updateStatistics(scores[playerList[pid].name]);
 
     speciallog.push({
       type: 'delplayer',

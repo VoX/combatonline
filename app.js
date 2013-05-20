@@ -6,8 +6,9 @@ var express = require('express'),
   routes = require('./routes'),
   http = require('http'),
   path = require('path'),
-  game = require('./tankServer.js'),
+  game = require('./tankServer.js')
   flash = require('connect-flash');
+
 
 var app = express();
 
@@ -42,6 +43,7 @@ app.post('/register', routes.try_register);
 app.get('/playgame', routes.playgame);
 app.get('/statistics', routes.getStatistics);
 app.get('/about', routes.about);
+
 
 var webServer = http.createServer(app);
 
